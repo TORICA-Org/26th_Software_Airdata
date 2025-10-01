@@ -1,10 +1,7 @@
-#include <Wire.h> // Wireライブラリをインクルード
+//i2cデバイススキャナー．i2cが2系統備わっているマイコン向けに改造
 
-/**
- * @brief 指定されたI2Cバスをスキャンし、接続されているデバイスのアドレスをシリアルモニターに表示する
- * @param wire スキャンするTwoWireオブジェクト (Wire や Wire1 など)
- * @param busName シリアルモニターに表示するためのバス名 (例: "Wire (I2C0)")
- */
+#include <Wire.h> 
+
 void scanI2CBus(TwoWire &wire, const char* busName) {
   byte error, address;
   int nDevices;
@@ -15,7 +12,7 @@ void scanI2CBus(TwoWire &wire, const char* busName) {
 
   nDevices = 0;
   for (address = 1; address < 127; address++) {
-    // 指定されたバスを使って通信を開始してみる
+    
     wire.beginTransmission(address);
     error = wire.endTransmission();
 
@@ -47,7 +44,7 @@ void scanI2CBus(TwoWire &wire, const char* busName) {
 
 void setup() {
   Serial.begin(9600);
-  while (!Serial); // シリアルモニターが開くまで待機
+  while (!Serial);
   Serial.println("\nDual Port I2C Scanner");
   Serial.println("=======================");
 
@@ -76,5 +73,5 @@ void loop() {
 
   Serial.println("\nScan complete. Repeating in 5 seconds.");
   Serial.println("======================================\n");
-  delay(5000); // 5秒待ってから再スキャン
+  delay(5000); 
 }
