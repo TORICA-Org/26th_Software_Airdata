@@ -14,7 +14,7 @@ Under construction
   - Pico-Under間UART: GP4,5
   - スピーカー：GP15
   - LED: GP8～13
-- Xiao RP2040
+- Xiao ESP32
   - Pico-Xiao間：GP26,27
   - SD用SPI:そのまま
 
@@ -44,7 +44,7 @@ Under construction
   例：data_air_dps_pressure_hPa
 - delay()を使わない．delayを使うとその間処理がストップする．
 - BMP390はアドレス指定必須
-- （先の話）Xiaoのwebサーバー，アクセス制御とかの工夫しないとマイコンの処理重くなる説．あとXiaoのwifi通信距離とか移動しながら通信できるか試したいね
+- （先の話）Xiaoのwebサーバー，アクセス制御とかの工夫しないとマイコンの処理重くなる説．テレメトリはプラホ上のみで見れたらよい
 - 25,24,23代のサイト
   
   https://geode-kicker-e37.notion.site/ffff665803ce8126aa80ebe58f07f743
