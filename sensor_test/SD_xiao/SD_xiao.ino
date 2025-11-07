@@ -1,52 +1,67 @@
-#include <TORICA_SD.h>
+#include <SPI.h>
 #include <SD.h>
 
-#define SD_SPI_SCK  (8)
-#define SD_SPI_MOSI (10)
-#define SD_SPI_MISO (9)
+// #define SD_SPI_SCK (8)
+// #define SD_SPI_MOSI (10)
+// #define SD_SPI_MISO (9)
 
-int cs_SD = 7; // XIAO RP2040ならRP2040のGPIO番号で指定
-TORICA_SD my_torica_sd(cs_SD);
 
-void listFiles(File dir, int numTabs) {
-  while (true) {
-    File entry = dir.openNextFile();
-    if (!entry) {
-      // No more files
-      break;
-    }
-    for (uint8_t i = 0; i < numTabs; i++) {
-      Serial.print('\t');
-    }
-    Serial.print(entry.name());
-    if (entry.isDirectory()) {
-      Serial.println("/");
-      listFiles(entry, numTabs + 1);
-    } else {
-      Serial.print("\t\t");
-      Serial.println(entry.size(), DEC);
-    }
-    entry.close();
+const int cs_SD = 1;
+const int spi_mosi   = 9;
+const int spi_miso   = 8;
+const int spi_sck    = 7;
+
+File myFile;
+
+void setup() {
+  Serial.begin(9600);
+  while (!Serial) {
+    ; 
   }
-}
 
-void setup()
-{
-  Serial.begin(115200);
-  while (!Serial) delay(10);
+  Serial.print("Initializing SD card...");
 
-  if (!my_torica_sd.begin()) {
-    Serial.println("SD card initialization failed!");
+  SPI.begin(spi_sck, spi_miso, spi_mosi); 
+  
+  if (!SD.begin(cs_SD)) {
+    Serial.println("initialization failed!");
     return;
   }
-  Serial.println("SD card initialized.");
+  Serial.println("initialization done.");
 
-  File root = SD.open("/");
-  listFiles(root, 0);
-  root.close();
+  // open the file. note that only one file can be open at a time,
+  // so you have to close this one before opening another.
+  myFile = SD.open("test.txt", FILE_WRITE);
+
+  // if the file opened okay, write to it:
+  if (myFile) {
+    Serial.print("Writing to test.txt...");
+    myFile.println("testing 1, 2, 3.");
+    // close the file:
+    myFile.close();
+    Serial.println("done.");
+  } else {
+    // if the file didn't open, print an error:
+    Serial.println("error opening test.txt");
+  }
+
+  // re-open the file for reading:
+  myFile = SD.open("test.txt");
+  if (myFile) {
+    Serial.println("test.txt:");
+
+    // read from the file until there's nothing else in it:
+    while (myFile.available()) {
+      Serial.write(myFile.read());
+    }
+    // close the file:
+    myFile.close();
+  } else {
+    // if the file didn't open, print an error:
+    Serial.println("error opening test.txt");
+  }
 }
 
-void loop()
-{
-  // 何もしない
+void loop() {
+  // nothing happens after setup
 }
