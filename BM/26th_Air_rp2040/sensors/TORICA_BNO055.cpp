@@ -39,7 +39,7 @@ Adafruit_BNO055* TORICA_BNO055_get(){
     return TORICA_bno;
 }
 
-void TORICA_BNO055_rollpitchyaw(float &roll, float &pitch, float &yaw){
+void TORICA_BNO055_rollpitchyaw(volatile float &roll, volatile float &pitch, volatile float &yaw){
     roll = pitch = yaw = 0.0f;
     if(!TORICA_bno) return;
 
@@ -50,14 +50,21 @@ void TORICA_BNO055_rollpitchyaw(float &roll, float &pitch, float &yaw){
 }
 
 
-void TORICA_BNO055_getCalibration(uint8_t &sys, uint8_t &gyro, uint8_t &accel, uint8_t &mag){
-    sys = gyro = accel = mag = 0;
-    if(!TORICA_bno) return;
+void TORICA_BNO055_getCalibration(volatile uint8_t &sys, volatile uint8_t &gyro, volatile uint8_t &accel, volatile uint8_t &mag){
+  sys = gyro = accel = mag = 0;
+  if(!TORICA_bno) return;
 
-    TORICA_bno->getCalibration(&sys, &gyro, &accel, &mag);
+  // Adafruit API expects non-volatile uint8_t* pointers. Use temporaries
+  // and then copy into the volatile references to avoid invalid pointer conversion.
+  uint8_t s = 0, g = 0, a = 0, m = 0;
+  TORICA_bno->getCalibration(&s, &g, &a, &m);
+  sys = s;
+  gyro = g;
+  accel = a;
+  mag = m;
 }
 
-void TORICA_BNO055_acc(float &accx, float &accy, float &accz){
+void TORICA_BNO055_acc(volatile float &accx, volatile float &accy, volatile float &accz){
     accx = accy = accz = 0.0f;
     if(!TORICA_bno) return;
 
@@ -67,7 +74,7 @@ void TORICA_BNO055_acc(float &accx, float &accy, float &accz){
     accz = acceleration.z();
 }
 
-void TORICA_BNO055_quaternion(float &qw, float &qx, float &qy, float &qz){
+void TORICA_BNO055_quaternion(volatile float &qw, volatile float &qx, volatile float &qy, volatile float &qz){
     qw = qx = qy = qz = 0.0f;
     if(!TORICA_bno) return;
 

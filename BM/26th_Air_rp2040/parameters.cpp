@@ -12,19 +12,10 @@ const int LED_Air_xiao = 5;
 
 
 //離陸判定
-enum {
-    PLATFORM,
-    HIGH_LEVEL,
-    MID_LEVEL,
-    LOW_LEVEL
-} flight_phase = PLATFORM;
+FlightPhase flight_phase = PLATFORM;
 
 //スピードレベル
-enum {
-    FAST,
-    NORMAL,
-    SLOW
-} speed_level = NORMAL;
+SpeedLevel speed_level = NORMAL;
 
 
 //その他変数
@@ -84,3 +75,5 @@ volatile float data_under_urm_altitude_m = 0;
 volatile bool data_under_tsd20_istakeoff = false;
 
 
+//filtered
+float estimated_altitude_lake_m = const_platform_altitude_m;

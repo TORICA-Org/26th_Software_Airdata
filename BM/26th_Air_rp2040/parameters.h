@@ -11,12 +11,24 @@ extern const int LED_Air_xiao;
 //その他変数
 //SD送信用バッファ
 extern char UART_SD[512]; //512文字まで
-extern float const_platform_altitude_m;
+extern const float const_platform_altitude_m;
 
 
 //離陸・スピード判定
-extern enum flight_phase;
-extern enum speed_level;
+enum FlightPhase {
+    PLATFORM,
+    HIGH_LEVEL,
+    MID_LEVEL,
+    LOW_LEVEL
+};
+extern FlightPhase flight_phase;
+
+enum SpeedLevel {
+    FAST,
+    NORMAL,
+    SLOW
+};
+extern SpeedLevel speed_level;
 
 
 
@@ -66,6 +78,9 @@ extern volatile float data_under_bmp_altitude_m;
 extern volatile float data_under_urm_altitude_m;
 extern volatile bool data_under_tsd20_istakeoff;
 
+
+//filtered
+extern float estimated_altitude_lake_m;
 
 
 

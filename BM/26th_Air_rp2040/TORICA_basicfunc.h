@@ -16,10 +16,21 @@ void init_delay_10sec(void);
 //loop関数内で使うもの
 
 //対気速度の計算
-float calc_airspeed_ms(float sdp_differentialPressure_Pa, float dps_pressure_hPa, float dps_temperature_deg)
+float calc_airspeed_ms(float sdp_differentialPressure_Pa, float dps_pressure_hPa, float dps_temperature_deg);
 
 
 //気圧高度の計算
 float calc_pressureAltitude_m(float dps_pressure_hPa, float dps_temperature_deg);
+
+
+
+
+//UART受信
+//void polling_UART(void);
+
+
+//要検討！！！！
+//flight phase決定
+//void determine_flight_phase(void);
 
 

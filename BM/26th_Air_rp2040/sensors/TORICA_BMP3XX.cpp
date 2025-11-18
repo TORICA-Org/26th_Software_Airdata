@@ -9,7 +9,7 @@
 
 Adafruit_BMP3XX *TORICA_bmp = nullptr;
 
-bool TORICA_BMP3XX_init(TwoWire &wire, uint8_t addr = 0x77) {
+bool TORICA_BMP3XX_init(TwoWire &wire, uint8_t addr) {
     if (TORICA_bmp) return true;
 
     TORICA_bmp = new Adafruit_BMP3XX();
