@@ -72,7 +72,7 @@
           return TORICA_sdp;
       }
 
-      float TORICA_SDP810_getdifferentialPressure(void){
+      float TORICA_SDP810_getdifferentialPressure_Pa(void){
           float differentialPressure = 0.0f;
           float temperature = 0.0f;
 

@@ -1,35 +1,69 @@
 // 変数のextern宣言を書きます
 
-#pragma once // インクルードガード（複数回読み込まれないようにする）
+#pragma once  // インクルードガード（複数回読み込まれないようにする）
 
-//ピン設定用
+//ピン宣言用
+//Bico air_rp2040用
+//LED設定
 extern const int LED_ICS;
 extern const int LED_Under;
 extern const int LED_Air_pico;
 extern const int LED_Air_xiao;
+extern const int LED_GPS;
+extern const int LED_SD;
 
-//その他変数
+//UARTピン設定
+extern const int Serial_ICS_TX;
+extern const int Serial_ICS_RX;
+extern const int Serial_GPS_TX;
+extern const int Serial_GPS_RX;
+extern const int SerialAir_xiao_TX;
+extern const int SerialAir_xiao_RX;
+extern const int SerialUnder_TX;
+extern const int SerialUnder_RX;
+
+//I2Cピン設定
+extern const int bico_I2C0_SDA;
+extern const int bico_I2C0_SCL;
+extern const int bico_I2C1_SDA;
+extern const int bico_I2C1_SCL;
+
+
 //SD送信用バッファ
-extern char UART_SD[512]; //512文字まで
-extern const float const_platform_altitude_m;
+extern char UART_SD[512];  //512文字まで
 
+
+//UART送受信用バッファ
+extern char readUART_BUF[512];
+extern char sendUART_BUF[512];
+
+
+
+extern const float const_platform_altitude_m;
 
 //離陸・スピード判定
 enum FlightPhase {
-    PLATFORM,
-    HIGH_LEVEL,
-    MID_LEVEL,
-    LOW_LEVEL
+  PLATFORM,
+  HIGH_LEVEL,
+  MID_LEVEL,
+  LOW_LEVEL
 };
 extern FlightPhase flight_phase;
 
 enum SpeedLevel {
-    FAST,
-    NORMAL,
-    SLOW
+  FAST,
+  NORMAL,
+  SLOW
 };
 extern SpeedLevel speed_level;
 
+
+//動作時間
+extern uint32_t time_ms;
+
+
+//air_xiao向け　bico生存確認用
+extern volatile bool air_bico_is_alive;
 
 
 //BNO055
@@ -44,10 +78,19 @@ extern volatile float data_air_bno_roll;
 extern volatile float data_air_bno_pitch;
 extern volatile float data_air_bno_yaw;
 
+//以下はキャリブレーション状態保存用
+extern volatile uint8_t data_air_bno_cal_system;
+extern volatile uint8_t data_air_bno_cal_gyro;
+extern volatile uint8_t data_air_bno_cal_accel;
+extern volatile uint8_t data_air_bno_cal_mag;
+
 //BMP390
 extern volatile float data_air_bmp_pressure_hPa;
 extern volatile float data_air_bmp_temperature_deg;
 extern volatile float data_air_bmp_altitude_m;
+
+
+
 
 //GPS
 extern volatile uint8_t data_air_gps_hour;
@@ -72,16 +115,16 @@ extern volatile int data_ics_angle;
 
 
 //Under電装部
+extern bool under_is_alive;
 extern volatile float data_under_bmp_pressure_hPa;
 extern volatile float data_under_bmp_temperature_deg;
 extern volatile float data_under_bmp_altitude_m;
 extern volatile float data_under_urm_altitude_m;
-extern volatile bool data_under_tsd20_istakeoff;
+extern volatile float data_under_tsd20_altitude_m;
 
 
 //filtered
 extern float estimated_altitude_lake_m;
 
-
-
-
+//雑に実装．air_xiao用変数
+extern float data_altitude_bmp_urm_offset_m;

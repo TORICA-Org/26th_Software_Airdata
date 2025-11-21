@@ -22,7 +22,7 @@ bool TORICA_BMP3XX_init(TwoWire &wire, uint8_t addr) {
 
     if (!TORICA_bmp->begin_I2C(addr, &wire)) {
         #ifdef DEBUG_MODE
-            Serial.println("Could not find a valid BMP3 sensor, check wiring!");
+            Serial.println("Could not find a valid BMP3XX sensor, check wiring!");
         #endif
         delete TORICA_bmp;
         TORICA_bmp = nullptr;
@@ -37,6 +37,12 @@ bool TORICA_BMP3XX_init(TwoWire &wire, uint8_t addr) {
     // 12.5Hzで出力
     TORICA_bmp->setOutputDataRate(BMP3_ODR_12_5_HZ);
 
+    // 最初の読み取りを行ってメンバ変数を初期化しておく
+    if (TORICA_bmp) {
+        // performReading() はセンサから最新値を取得して内部変数を更新します
+        TORICA_bmp->performReading();
+    }
+
     return true;
 }
 
@@ -44,12 +50,16 @@ Adafruit_BMP3XX* TORICA_BMP3XX_get(){
     return TORICA_bmp;
 }
 
-float TORICA_BMP3XX_getTemperature(void) {
+float TORICA_BMP3XX_getTemperature_deg(void) {
     if (!TORICA_bmp) return 0.0f;
+    // 最新値を取得してから返す
+    TORICA_bmp->performReading();
     return TORICA_bmp->temperature;
 }
 
-float TORICA_BMP3XX_getPressure(void) {
+float TORICA_BMP3XX_getPressure_hPa(void) {
     if (!TORICA_bmp) return 0.0f;
+    // 最新値を取得してから返す
+    TORICA_bmp->performReading();
     return TORICA_bmp->pressure / 100.0f;
 }
