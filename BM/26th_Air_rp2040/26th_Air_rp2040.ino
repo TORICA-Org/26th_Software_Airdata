@@ -1,8 +1,8 @@
 #define DEBUG_MODE  //デバッグモード
 
 #include <Arduino.h>
-#include "TORICA_parameters.h"
-#include "TORICA_basicfunc.h"
+#include <TORICA_parameters.h>
+#include <TORICA_basicfunc.h>
 
 //UARTの宣言
 #define SerialAir_xiao Serial1
@@ -12,6 +12,7 @@ SerialPIO Serial_ICS(Serial_ICS_TX, Serial_ICS_RX);  //ICS基盤用
 
 
 //ライブラリ読み込みと初期化とか
+
 //GPS
 #include <TinyGPSPlus.h>
 TinyGPSPlus gps;
@@ -24,18 +25,14 @@ TORICA_UART Air_xiao_UART(&SerialAir_xiao);
 //TORICA_ICS初期化
 #include <TORICA_ICS.h>
 TORICA_ICS ics(&Serial_ICS);
+
 //I2Cパッケージ
 #include <Wire.h>
 
-#include "sensors/TORICA_SDP810.h"
-#include "sensors/TORICA_SDP810.cpp"
-#include "sensors/TORICA_BMP3XX.h"
-#include "sensors/TORICA_BMP3XX.cpp"
-#include "sensors/TORICA_BNO055.h"
-#include "sensors/TORICA_BNO055.cpp"
-#include "sensors/TORICA_AS5600.h"
-#include "sensors/TORICA_AS5600.cpp"
-
+#include <TORICA_SDP810.h>
+#include <TORICA_BMP3XX.h>
+#include <TORICA_BNO055.h>
+#include <TORICA_AS5600.h>
 #include <TORICA_MoveAve.h>
 
 
@@ -126,8 +123,6 @@ void setup() {
 
   //100Hz周期実行用
   Timer1.setInterval(10);
-  Adafruit_BNO055 *TORICA_BNO055_get();
-  Adafruit_BMP3XX *TORICA_BMP3XX_get();
 }
 
 

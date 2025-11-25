@@ -50,157 +50,157 @@ void loop() {
   sprintf(value1, "%d", time_ms);
   SerialWeb.send(label1, value1);
 
-  char label2[] = "data_air_bno_accx_mss";
+  char label2[] = "air_bno_accx_mss";
   char value2[32];
   sprintf(value2, "%.2f", data_air_bno_accx_mss);
   SerialWeb.send(label2, value2);
 
-  char label3[] = "data_air_bno_accy_mss";
+  char label3[] = "air_bno_accy_mss";
   char value3[32];
   sprintf(value3, "%.2f", data_air_bno_accy_mss);
   SerialWeb.send(label3, value3);
 
-  char label4[] = "data_air_bno_accz_mss";
+  char label4[] = "air_bno_accz_mss";
   char value4[32];
   sprintf(value4, "%.2f", data_air_bno_accz_mss);
   SerialWeb.send(label4, value4);
 
-  char label5[] = "data_air_bno_qw";
+  char label5[] = "air_bno_qw";
   char value5[32];
   sprintf(value5, "%.2f", data_air_bno_qw);
   SerialWeb.send(label5, value5);
 
-  char label6[] = "data_air_bno_qx";
+  char label6[] = "air_bno_qx";
   char value6[32];
   sprintf(value6, "%.2f", data_air_bno_qx);
   SerialWeb.send(label6, value6);
 
-  char label7[] = "data_air_bno_qy";
+  char label7[] = "air_bno_qy";
   char value7[32];
   sprintf(value7, "%.2f", data_air_bno_qy);
   SerialWeb.send(label7, value7);
 
-  char label8[] = "data_air_bno_qz";
+  char label8[] = "air_bno_qz";
   char value8[32];
   sprintf(value8, "%.2f", data_air_bno_qz);
   SerialWeb.send(label8, value8);
 
-  char label9[] = "data_air_bno_roll";
+  char label9[] = "air_bno_roll";
   char value9[32];
   sprintf(value9, "%.2f", data_air_bno_roll);
   SerialWeb.send(label9, value9);
 
-  char label10[] = "data_air_bno_pitch";
+  char label10[] = "air_bno_pitch";
   char value10[32];
   sprintf(value10, "%.2f", data_air_bno_pitch);
   SerialWeb.send(label10, value10);
 
-  char label11[] = "data_air_bno_yaw";
+  char label11[] = "air_bno_yaw";
   char value11[32];
   sprintf(value11, "%.2f", data_air_bno_yaw);
   SerialWeb.send(label11, value11);
 
-  char label12[] = "data_air_bmp_pressure_hPa";
+  char label12[] = "air_bmp_pressure_hPa";
   char value12[32];
   sprintf(value12, "%.2f", data_air_bmp_pressure_hPa);
   SerialWeb.send(label12, value12);
 
-  char label13[] = "data_air_bmp_temperature_deg";
+  char label13[] = "air_bmp_temperature_deg";
   char value13[32];
   sprintf(value13, "%.2f", data_air_bmp_temperature_deg);
   SerialWeb.send(label13, value13);
 
-  char label14[] = "data_air_bmp_altitude_m";
+  char label14[] = "air_bmp_altitude_m";
   char value14[32];
   sprintf(value14, "%.2f", data_air_bmp_altitude_m);
   SerialWeb.send(label14, value14);
 
-  char label15[] = "data_air_sdp_differentialPressure_Pa";
+  char label15[] = "air_sdp_differentialPressure_Pa";
   char value15[32];
   sprintf(value15, "%.2f", data_air_sdp_differentialPressure_Pa);
   SerialWeb.send(label15, value15);
   
-  char label16[] = "data_air_sdp_airspeed_ms";
+  char label16[] = "air_sdp_airspeed_ms";
   char value16[32];
   sprintf(value16, "%.2f", data_air_sdp_airspeed_ms);
   SerialWeb.send(label16, value16);
 
-  char label17[] = "data_air_AoA_angle_deg";
+  char label17[] = "air_AoA_angle_deg";
   char value17[32];
   sprintf(value17, "%.2f", data_air_AoA_angle_deg);
   SerialWeb.send(label17, value17);
 
-  char label18[] = "data_air_AoS_angle_deg";
+  char label18[] = "air_AoS_angle_deg";
   char value18[32];
   sprintf(value18, "%.2f", data_air_AoS_angle_deg);
   SerialWeb.send(label18, value18);
 
-  char label19[] = "data_air_gps_hour";
+  char label19[] = "air_gps_hour";
   char value19[32];
   sprintf(value19, "%u", data_air_gps_hour);
   SerialWeb.send(label19, value19);
 
-  char label20[] = "data_air_gps_minute";
+  char label20[] = "air_gps_minute";
   char value20[32];
   sprintf(value20, "%u", data_air_gps_minute);
   SerialWeb.send(label20, value20);
 
-  char lebel21[] = "data_air_gps_second";
+  char label21[] = "air_gps_second";
   char value21[32];
   sprintf(value21, "%u", data_air_gps_second);
-  SerialWeb.send(lebel21, value21);
+  SerialWeb.send(label21, value21);
 
-  char label22[] = "data_air_gps_centisecond";
+  char label22[] = "air_gps_centisecond";
   char value22[32];
   sprintf(value22, "%u", data_air_gps_centisecond);
   SerialWeb.send(label22, value22);
 
-  char label23[] = "data_air_gps_latitude_deg";
+  char label23[] = "air_gps_latitude_deg";
   char value23[32];
   sprintf(value23, "%10.7f", data_air_gps_latitude_deg);
   SerialWeb.send(label23, value23);
 
-  char label24[] = "data_air_gps_longitude_deg";
+  char label24[] = "air_gps_longitude_deg";
   char value24[32];
   sprintf(value24, "%10.7f", data_air_gps_longitude_deg);
   SerialWeb.send(label24, value24);
 
-  char label25[] = "data_air_gps_altitude_m";
+  char label25[] = "air_gps_altitude_m";
   char value25[32];
   sprintf(value25, "%5.2f", data_air_gps_altitude_m);
   SerialWeb.send(label25, value25);
 
-  char label26[] = "data_air_gps_groundspeed_ms";
+  char label26[] = "air_gps_groundspeed_ms";
   char value26[32];
   sprintf(value26, "%5.2f", data_air_gps_groundspeed_ms);
   SerialWeb.send(label26, value26);
 
-  char label27[] = "data_ics_angle";
+  char label27[] = "ics_angle";
   char value27[32];
   sprintf(value27, "%d", data_ics_angle);
   SerialWeb.send(label27, value27);
 
-  char label28[] = "data_under_bmp_pressure_hPa";
+  char label28[] = "under_bmp_pressure_hPa";
   char value28[32];
   sprintf(value28, "%.2f", data_under_bmp_pressure_hPa);
   SerialWeb.send(label28, value28);
 
-  char label29[] = "data_under_bmp_temperature_deg";
+  char label29[] = "under_bmp_temperature_deg";
   char value29[32];
   sprintf(value29, "%.2f", data_under_bmp_temperature_deg);
   SerialWeb.send(label29, value29);
 
-  char label30[] = "data_under_bmp_altitude_m";
+  char label30[] = "under_bmp_altitude_m";
   char value30[32];
   sprintf(value30, "%.2f", data_under_bmp_altitude_m);
   SerialWeb.send(label30, value30);
 
-  char label31[] = "data_under_urm_altitude_m";
+  char label31[] = "under_urm_altitude_m";
   char value31[32];
   sprintf(value31, "%.2f", data_under_urm_altitude_m);
   SerialWeb.send(label31, value31);
 
-  char label32[] = "data_under_tsd20_altitude_m";
+  char label32[] = "under_tsd20_altitude_m";
   char value32[32];
   sprintf(value32, "%.2f", data_under_tsd20_altitude_m);
   SerialWeb.send(label32, value32);
