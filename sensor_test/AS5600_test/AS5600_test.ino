@@ -1,7 +1,7 @@
 #include <Wire.h>
 #include <AS5600.h>
 
-AS5600 as5600_AOS(&Wire1);
+AS5600 as5600_AOS(&Wire);
 
 volatile float AS5600_AOS_angle_deg = 0;
 
@@ -15,9 +15,9 @@ void setup() {
   Serial.println(AS5600_LIB_VERSION);
   Serial.println();
 
-  Wire1.setSDA(26);
-  Wire1.setSCL(27);
-  Wire1.begin();
+  Wire.setSDA(16);
+  Wire.setSCL(17);
+  Wire.begin();
   int b = as5600_AOS.isConnected();
   if (b == 0) {
     Serial.print("Connect: ");
