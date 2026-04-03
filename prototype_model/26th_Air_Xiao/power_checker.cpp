@@ -2,6 +2,6 @@
 このファイルの役割：電流電圧測定
 
 ------------------------*/
-#include "check_power.h"
+#include "power_checker.h"
 
 

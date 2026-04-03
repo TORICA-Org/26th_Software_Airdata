@@ -9,7 +9,7 @@
 
 
 #include <Arduino.h>
-#include "TORICA_parameters.h"
+#include "parameters.h"
 
 
 const float const_platform_altitude_m = 10.6f;

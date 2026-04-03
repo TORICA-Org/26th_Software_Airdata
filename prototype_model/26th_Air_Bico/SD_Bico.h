@@ -8,8 +8,8 @@
 #include <SD.h>
 #include <TORICA_SD.h>
 
-#include "TORICA_parameters.h"
+#include "parameters.h"
 
 void initSD();
 
-void flashSD();
+void flashSD(int flash_mode);

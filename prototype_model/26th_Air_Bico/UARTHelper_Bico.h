@@ -1,6 +1,6 @@
 #pragma once
 
-#include "TORICA_parameters.h"
+#include "parameters.h"
 #include <TORICA_ICS.h>
 #include <TORICA_UART.h>
 

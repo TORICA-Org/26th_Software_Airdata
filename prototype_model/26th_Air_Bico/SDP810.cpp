@@ -9,12 +9,12 @@
 #include <Arduino.h>
 #include <SensirionI2CSdp.h>
 #include <Wire.h>
-#include "TORICA_SDP810.h"
-#include "TORICA_parameters.h"
+#include "SDP810.h"
+#include "parameters.h"
 
 SensirionI2CSdp sdp;
 
-bool TORICA_SDP810_init(void) {
+bool SDP810_init(void) {
     uint16_t error;
     char errorMessage[256];
 
@@ -83,7 +83,7 @@ void read_SDP(void){
     }
 }
 
-// float TORICA_SDP810_getdifferentialPressure_Pa(void) {
+// float SDP810_getdifferentialPressure_Pa(void) {
 //     uint16_t error;
 //     char errorMessage[256];
 

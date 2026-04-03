@@ -10,12 +10,12 @@
 
 
 #pragma once
-#include "TORICA_BMP3XX.h"
-#include "TORICA_parameters.h"
+#include "BMP3XX.h"
+#include "parameters.h"
 
 Adafruit_BMP3XX bmp;
 
-bool TORICA_BMP3XX_init(void){
+bool BMP3XX_init(void){
     if (!bmp.begin_I2C(0x77, &Wire1)) {
         #ifdef DEBUG_MODE
         Serial.println("Could not find a valid BMP3 sensor, check wiring!");
@@ -73,7 +73,7 @@ void read_bmp_under(void){
 
 /*---------------
 
-float TORICA_BMP3XX_getTemperature_deg(void){
+float BMP3XX_getTemperature_deg(void){
     if(!bmp.performReading()){
         #ifdef DEBUG_MODE
         Serial.println("Failed to perform reading :(");
@@ -82,7 +82,7 @@ float TORICA_BMP3XX_getTemperature_deg(void){
     return bmp.temperature; //温度を℃で返す
 }
 
-float TORICA_BMP3XX_getPressure_hPa(void){
+float BMP3XX_getPressure_hPa(void){
     if(!bmp.performReading()) {
         #ifdef DEBUG_MODE
         Serial.println("Failed to perform reading :(");

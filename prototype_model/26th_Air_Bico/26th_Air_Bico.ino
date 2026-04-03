@@ -1,16 +1,17 @@
 #define DEBUG_MODE  //デバッグモード
 
 #include <Arduino.h>
-#include "TORICA_parameters.h"
+#include "parameters.h"
 #include "Bico_config.h"
 
 //各ファイル読み込み
 #include "calculate_altitude.h"
-#include "TORICA_AS5600.h"
-#include "TORICA_BMP3xx.h"
-#include "TORICA_BNO055.h"
-#include "TORICA_SDP810.h"
+#include "AS5600.h"
+#include "BMP3xx.h"
+#include "BNO055.h"
+#include "SDP810.h"
 #include "UARTHelper_Bico.h"
+#include "SD_Bico.h"
 
 
 //100Hz周期実行用
@@ -88,10 +89,10 @@ void setup() {
   #endif //DEBUG_MODEが有効ならば
 
 
-  TORICA_SDP810_init();
-  TORICA_AS5600_init();
-  TORICA_BMP3XX_init();
-  TORICA_BNO055_init();
+  SDP810_init();
+  AS5600_init();
+  BMP3XX_init();
+  BNO055_init();
 
   Timer1.setInterval(10); //10ms(=100Hz)ごとにTimer1内の動作を実行
   Timer2.setInterval(10); //10ms(=100Hz)ごとにTimer2内の動作を実行
@@ -147,9 +148,19 @@ void func_100Hz() {
 
     //UART送信とSD書き込み
 
-    transmitLog();
-    flashSD();
-    
+    transmitLog(transmit_count);
+    transmit_count++;
+    //一通り送信したらカウントリセット
+    if (transmit_count > 3) {
+      transmit_count = 0;
+    }
+
+    flashSD(flash_count);
+    flash_count++;
+    //一通り書き込んだらカウントリセット
+    if (flash_count > 3) {
+      flash_count = 0;
+    }    
     
   });
 }

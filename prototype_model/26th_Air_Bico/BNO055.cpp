@@ -7,16 +7,16 @@
 ---------------------------------------------------------*/
 
 #include <Arduino.h>
-#include "TORICA_BNO055.h"
+#include "BNO055.h"
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BNO055.h>
 #include <utility/imumaths.h>
-#include "TORICA_parameters.h"
+#include "parameters.h"
 
 Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28, &Wire);
 
-bool TORICA_BNO055_init(void){
+bool BNO055_init(void){
   if(!bno.begin()){
     #ifdef DEBUG_MODE
     Serial.println("no BNO055 detected");

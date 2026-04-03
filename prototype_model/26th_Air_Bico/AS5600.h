@@ -12,9 +12,9 @@
 #include <Wire.h>
 #include <AS5600.h>
 
-bool TORICA_AS5600_init(void);
+bool AS5600_init(void);
 
 void read_AS5600(void);
 
-// float TORICA_AS5600_getAoS(void);
-// float TORICA_AS5600_getAoA(void);
+// float AS5600_getAoS(void);
+// float AS5600_getAoA(void);

@@ -11,6 +11,6 @@
 #include <Arduino.h>
 #include <Wire.h>
 
-bool TORICA_BNO055_init(void);
+bool BNO055_init(void);
 
 void read_BNO(void);

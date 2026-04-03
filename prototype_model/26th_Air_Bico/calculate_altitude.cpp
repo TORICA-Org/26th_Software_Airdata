@@ -8,7 +8,7 @@
 
 #pragma once
 #include <Arduino.h>
-#include "TORICA_parameters.h"
+#include "parameters.h"
 
 //移動平均の計算
 #include <TORICA_MoveAve.h>

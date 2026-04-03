@@ -8,9 +8,9 @@
 
 #pragma once // インクルードガード（複数回読み込まれないようにする）
 
-#include "TORICA_AS5600.h"
 #include "AS5600.h"
-#include "TORICA_parameters.h"
+#include "AS5600.h"
+#include "parameters.h"
 
 
 //  Uncomment the line according to your sensor type
@@ -19,7 +19,7 @@ AS5600 AoA(&Wire); //I2C0を使用
 AS5600 AoS(&Wire1); //I2C1を使用
 
 
-bool TORICA_AS5600_init(void){
+bool AS5600_init(void){
 
   #ifdef DEBUG_MODE
   Serial.println();
@@ -70,12 +70,12 @@ void read_AS5600(void){
 
 
 /*------
-float TORICA_AS5600_getAoS(void)
+float AS5600_getAoS(void)
 {
   return AoS.readAngle();
 }
 
-float TORICA_AS5600_getAoA(void)
+float AS5600_getAoA(void)
 {
   return AoA.readAngle();
 }

@@ -15,10 +15,10 @@
 
 extern SensirionI2CSdp sdp;
 
-bool TORICA_SDP810_init(void);
+bool SDP810_init(void);
 
 void read_SDP(void);
 
-//float TORICA_SDP810_getdifferentialPressure_Pa(void);
+//float SDP810_getdifferentialPressure_Pa(void);
 
 

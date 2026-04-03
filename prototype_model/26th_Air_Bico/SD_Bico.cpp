@@ -8,10 +8,10 @@
 //ピン配置定義ファイルを読み込む
 #include "Bico_config.h"
 
-#include "TORICA_parameters.h"
+#include "parameters.h"
 
 
-TORICA_SD SD; //引数なしでインスタンス化
+TORICA_SD sd; //引数なしでインスタンス化
 
 char SD_BUF[256]; //SD書き込み用バッファ
 
@@ -26,7 +26,7 @@ void initSD(){
     #endif
 
     SPI.begin();
-    SD.begin(SD_CS);
+    sd.begin(SD_CS);
 }
 
 
@@ -39,8 +39,8 @@ void flashSD(int flash_mode){
             sprintf(SD_BUF, "%d,%d,%d,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,",  //10個
             time_ms, takeoff, speed_level, data_air_bno_accx_mss, data_air_bno_accy_mss,
             data_air_bno_accz_mss, data_air_bno_qw, data_air_bno_qx, data_air_bno_qy, data_air_bno_qz);
-            SD.add_str(SD_BUF);
-            SD.flash();
+            sd.add_str(SD_BUF);
+            sd.flash();
             break;
         }
         case 1: {
@@ -48,8 +48,8 @@ void flashSD(int flash_mode){
              data_air_bno_roll, data_air_bno_pitch, data_air_bno_yaw, data_air_bno_cal_system,
              data_air_bno_cal_gyro, data_air_bno_cal_accel, data_air_bno_cal_mag, data_air_bmp_pressure_hPa,
              data_air_bmp_temperature_deg, data_air_bmp_altitude_m);
-             SD.add_str(SD_BUF);
-             SD.flash();
+             sd.add_str(SD_BUF);
+             sd.flash();
              break;
         }
         case 2: {
@@ -57,8 +57,8 @@ void flashSD(int flash_mode){
             data_air_gps_hour, data_air_gps_minute, data_air_gps_second, data_air_gps_centisecond,
             data_air_gps_latitude_deg, data_air_gps_longitude_deg, data_air_gps_altitude_m,
             data_air_gps_groundspeed_ms, data_air_sdp_differentialPressure_Pa, data_air_sdp_airspeed_ms);
-            SD.add_str(SD_BUF);
-            SD.flash();
+            sd.add_str(SD_BUF);
+            sd.flash();
             break;
         }
          case 3: {
@@ -66,8 +66,8 @@ void flashSD(int flash_mode){
             data_air_AoA_angle_deg, data_air_AoS_angle_deg, data_ics_angle, data_under_bmp_pressure_hPa,
             data_under_bmp_temperature_deg, data_under_bmp_altitude_m, data_under_urm_altitude_m,
             data_under_tsd20_altitude_m, estimated_altitude_lake_m, data_altitude_bmp_urm_offset_m);
-            SD.add_str(SD_BUF);
-            SD.flash();
+            sd.add_str(SD_BUF);
+            sd.flash();
             break;
     }
     default: {
@@ -88,8 +88,8 @@ void flashSD(){
     //40個一気に書きこむ
     sprintf(SD_BUF, "%d,%d,%d,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%d,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f", time_ms, takeoff, speed_level, data_air_bno_accx_mss, data_air_bno_accy_mss,data_air_bno_accz_mss, data_air_bno_qw, data_air_bno_qx, data_air_bno_qy, data_air_bno_qz,data_air_bno_roll, data_air_bno_pitch, data_air_bno_yaw, data_air_bno_cal_system,data_air_bno_cal_gyro, data_air_bno_cal_accel, data_air_bno_cal_mag, data_air_bmp_pressure_hPa,data_air_bmp_temperature_deg, data_air_bmp_altitude_m, data_air_gps_hour, data_air_gps_minute, data_air_gps_second, data_air_gps_centisecond,data_air_gps_latitude_deg, data_air_gps_longitude_deg, data_air_gps_altitude_m,data_air_gps_groundspeed_ms, data_air_sdp_differentialPressure_Pa, data_air_sdp_airspeed_ms,data_air_AoA_angle_deg, data_air_AoS_angle_deg, data_ics_angle, data_under_bmp_pressure_hPa,data_under_bmp_temperature_deg, data_under_bmp_altitude_m, data_under_urm_altitude_m,data_under_tsd20_altitude_m, estimated_altitude_lake_m, data_altitude_bmp_urm_offset_m);
 
-    SD.add_str(SD_BUF);
-    SD.flash();
+    sd.add_str(SD_BUF);
+    sd.flash();
 }
 
 */
