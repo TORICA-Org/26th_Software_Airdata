@@ -8,7 +8,7 @@
 ---------------------------------------------------------*/
 
 #pragma once
-#include "BMP3XX.h"
+#include "BMP3xx.h"
 #include "parameters.h"
 
 Adafruit_BMP3XX bmp;
@@ -37,10 +37,10 @@ bool BMP3XX_init(void){
 void read_bmp_air(void){
     if(bmp.performReading() == true){
 
-        data_air_bmp_pressure_hPa = bmp.pressure/100; //気圧をhPaで表現
-        data_air_bmp_temperature_deg = bmp.temperature; //温度を℃で返す
+        data_air_bmp_pressure_hPa = bmp.pressure / 100; // 気圧をhPaで表現
+        data_air_bmp_temperature_deg = bmp.temperature; // 温度を℃で返す
 
-    } else if (bmp.performReading() == false){
+    } else {
         //読み取れなかった場合，0.0を返す
         #ifdef DEBUG_MODE
         Serial.println("Failed to reading :(");
@@ -50,6 +50,8 @@ void read_bmp_air(void){
     }
 }
 
+
+/* 機体下電装用 */
 
 // void read_bmp_under(void){
 //     if(bmp.performReading() == true){
@@ -66,6 +68,9 @@ void read_bmp_air(void){
 //         data_under_bmp_temperature_deg = 0.0;
 //     }
 // }
+
+
+/* 胴体桁電装用 */
 
 // void read_bmp_psd(void){
 //     if(bmp.performReading() == true){
