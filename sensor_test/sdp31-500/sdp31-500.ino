@@ -44,8 +44,8 @@ void setup() {
 
     Serial.begin(115200);
 
-    Wire.setSDA(12);
-    Wire.setSCL(13);
+    Wire.setSDA(16);
+    Wire.setSCL(17);
     Wire.begin();
     Wire.setClock(400000);
 

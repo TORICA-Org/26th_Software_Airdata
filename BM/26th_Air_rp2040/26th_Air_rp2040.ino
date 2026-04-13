@@ -1,5 +1,33 @@
 #define DEBUG_MODE  //デバッグモード
 
+//ピン宣言用
+//Bico air_rp2040用
+//LED設定
+const int LED_ICS = 8;
+const int LED_Under = 9;
+const int LED_Air_pico = 10;
+const int LED_Air_xiao = 22;
+const int LED_GPS = 23;
+const int LED_SD = 24;
+
+//UARTピン設定
+const int Serial_ICS_TX = 10;
+const int Serial_ICS_RX = 11;
+const int Serial_GPS_TX = 2;
+const int Serial_GPS_RX = 3;
+const int SerialAir_xiao_TX = 16;
+const int SerialAir_xiao_RX = 17;
+const int SerialUnder_TX = 4;
+const int SerialUnder_RX = 5;
+
+//I2Cピン設定
+const int bico_I2C0_SDA = 20;
+const int bico_I2C0_SCL = 21;
+const int bico_I2C1_SDA = 26;
+const int bico_I2C1_SCL = 27;
+
+
+
 #include <Arduino.h>
 #include <TORICA_parameters.h>
 #include <TORICA_basicfunc.h>
