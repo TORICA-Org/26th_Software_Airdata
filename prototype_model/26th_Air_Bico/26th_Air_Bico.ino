@@ -8,10 +8,8 @@
 #include "calculate_altitude.h"
 #include "AS5600.h"
 #include "BMP3xx.h"
-#include "BNO055.h"
 #include "SDP810.h"
 #include "UARTHelper_Bico.h"
-#include "SD_Bico.h"
 
 
 //100Hz周期実行用
@@ -92,7 +90,6 @@ void setup() {
   SDP810_init();
   AS5600_init();
   BMP3XX_init();
-  BNO055_init();
 
   Timer1.setInterval(10); //10ms(=100Hz)ごとにTimer1内の動作を実行
   Timer2.setInterval(10); //10ms(=100Hz)ごとにTimer2内の動作を実行
@@ -119,15 +116,13 @@ void loop1() {
 
 //UART送信，SD書き込み用カウント変数
 int transmit_count = 0;
-int flash_count = 0;
+// int flash_count = 0;
 
 void func_100Hz() {
   //100Hz周期で実行
   Timer1.run([]() -> void {
     
     read_bmp_air();
-
-    read_BNO();
 
     read_AS5600();
 
@@ -150,17 +145,17 @@ void func_100Hz() {
 
     transmitLog(transmit_count);
     transmit_count++;
-    //一通り送信したらカウントリセット
+    //一通り送信(=transmit_countが4以上)したらカウントリセット
     if (transmit_count > 3) {
       transmit_count = 0;
     }
 
-    flashSD(flash_count);
-    flash_count++;
-    //一通り書き込んだらカウントリセット
-    if (flash_count > 3) {
-      flash_count = 0;
-    }    
+    // flashSD(flash_count);
+    // flash_count++;
+    // //一通り書き込んだらカウントリセット
+    // if (flash_count > 3) {
+    //   flash_count = 0;
+    // }    
     
   });
 }

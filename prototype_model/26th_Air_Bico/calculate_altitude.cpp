@@ -32,7 +32,7 @@ TORICA_MoveMedian<400> altitude_bmp_urm_offset_m(0);
 
 
 
-//この関数を実行する前に，read_bmp_air()を実行する
+//この関数を実行する前に，read_bmp_air()を実行すること
 void calculate_altitude() {
 
   data_air_bmp_altitude_m = (powf(1013.25 / data_air_bmp_pressure_hPa, 1 / 5.257) - 1) * (data_air_bmp_temperature_deg + 273.15) / 0.0065;

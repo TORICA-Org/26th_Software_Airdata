@@ -1,9 +1,7 @@
-#include <SerialWeb.h>
-#include "TORICA_parameters.h"
-#include "TORICA_basicfunc.h"
-
 #define DEBUG_MODE
 
+#include <SerialWeb.h>
+#include "parameters.h"
 #include <TORICA_UART.h>
 
 
@@ -27,12 +25,8 @@ void setup() {
 
 void loop() {
 
-
-
-  static TORICA_UART bico_UART(&Serial1);
-  if (!polling_UART("air_xiao", nullptr, nullptr, &bico_UART) ){
-    Serial.printf("polling_UART() error!");
-  }
+  // ログを受信＆受信データを変数と紐づけ
+  receiveLog();
 
 
   // send関数で送信したデータは，ダッシュボードに表示されます．
@@ -48,52 +42,52 @@ void loop() {
 
   char label2[] = "air_bno_accx_mss";
   char value2[32];
-  sprintf(value2, "%.2f", data_air_bno_accx_mss);
+  sprintf(value2, "%.2f", data_psd_bno_accx_mss);
   SerialWeb.send(label2, value2);
 
   char label3[] = "air_bno_accy_mss";
   char value3[32];
-  sprintf(value3, "%.2f", data_air_bno_accy_mss);
+  sprintf(value3, "%.2f", data_psd_bno_accy_mss);
   SerialWeb.send(label3, value3);
 
   char label4[] = "air_bno_accz_mss";
   char value4[32];
-  sprintf(value4, "%.2f", data_air_bno_accz_mss);
+  sprintf(value4, "%.2f", data_psd_bno_accz_mss);
   SerialWeb.send(label4, value4);
 
   char label5[] = "air_bno_qw";
   char value5[32];
-  sprintf(value5, "%.2f", data_air_bno_qw);
+  sprintf(value5, "%.2f", data_psd_bno_qw);
   SerialWeb.send(label5, value5);
 
   char label6[] = "air_bno_qx";
   char value6[32];
-  sprintf(value6, "%.2f", data_air_bno_qx);
+  sprintf(value6, "%.2f", data_psd_bno_qx);
   SerialWeb.send(label6, value6);
 
   char label7[] = "air_bno_qy";
   char value7[32];
-  sprintf(value7, "%.2f", data_air_bno_qy);
+  sprintf(value7, "%.2f", data_psd_bno_qy);
   SerialWeb.send(label7, value7);
 
   char label8[] = "air_bno_qz";
   char value8[32];
-  sprintf(value8, "%.2f", data_air_bno_qz);
+  sprintf(value8, "%.2f", data_psd_bno_qz);
   SerialWeb.send(label8, value8);
 
   char label9[] = "air_bno_roll";
   char value9[32];
-  sprintf(value9, "%.2f", data_air_bno_roll);
+  sprintf(value9, "%.2f", data_psd_bno_roll);
   SerialWeb.send(label9, value9);
 
   char label10[] = "air_bno_pitch";
   char value10[32];
-  sprintf(value10, "%.2f", data_air_bno_pitch);
+  sprintf(value10, "%.2f", data_psd_bno_pitch);
   SerialWeb.send(label10, value10);
 
   char label11[] = "air_bno_yaw";
   char value11[32];
-  sprintf(value11, "%.2f", data_air_bno_yaw);
+  sprintf(value11, "%.2f", data_psd_bno_yaw);
   SerialWeb.send(label11, value11);
 
   char label12[] = "air_bmp_pressure_hPa";
@@ -244,13 +238,13 @@ void loop() {
   Serial.print(data_air_AoA_angle_deg);
   Serial.print("\t");
   Serial.print("Roll:");
-  Serial.print(data_air_bno_roll);
+  Serial.print(data_psd_bno_roll);
   Serial.print("\t");
   Serial.print("Pitch:");
-  Serial.print(data_air_bno_pitch);
+  Serial.print(data_psd_bno_pitch);
   Serial.print("\t");
   Serial.print("Yaw:");
-  Serial.print(data_air_bno_yaw);
+  Serial.print(data_psd_bno_yaw);
   Serial.print("\t");
   Serial.print("BMP_Temp:");
   Serial.print(data_air_bmp_temperature_deg);
