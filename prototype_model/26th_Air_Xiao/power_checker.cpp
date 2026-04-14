@@ -18,7 +18,7 @@ const float R2 = 1.8 * 1000.0; // 1.8kΩ
 
 void init_PowerChecker(){
     // ADCの減衰率を6dBに設定
-    analogSetAttenation(ADC_6db);
+    analogSetAttenuation(ADC_6db);
 }
 
 
