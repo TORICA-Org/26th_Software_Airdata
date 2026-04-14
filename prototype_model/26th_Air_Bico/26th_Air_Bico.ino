@@ -1,10 +1,10 @@
-#define DEBUG_MODE  //デバッグモード
+#define DEBUG_MODE  // デバッグモード
 
 #include <Arduino.h>
 #include "parameters.h"
 #include "Bico_config.h"
 
-//各ファイル読み込み
+// 各ファイル読み込み
 #include "calculate_altitude.h"
 #include "AS5600.h"
 #include "BMP3xx.h"
@@ -12,31 +12,32 @@
 #include "UARTHelper_Bico.h"
 
 
-//100Hz周期実行用
-class Timer {
-public:
-  void setInterval(int _interval) {
-    interval = _interval;
-  }
+// 100Hzタイマー用
+#include "pico/stdlib.h"
+struct repeating_timer core0_timer;
+volatile bool core0_timer_triggered = false;  //100Hz用フラグ
+struct repeating_timer core1_timer;
+volatile bool core1_timer_triggered = false;  //100Hz用フラグ
 
-  void run(void (*function)()) {
-    // 引数([戻り値の型] *([ポインタ変数名])([引数情報]))
-    if (millis() - last_timestamp >= interval) {
-      last_timestamp = millis();
-      function();
-    }
-  }
+bool core0_timer_callback(struct repeating_timer *t) {
+  core0_timer_triggered = true;
+  return true;
+}
 
-private:
-  int interval = 0;
-  unsigned long last_timestamp = 0;
-};
+bool core1_timer_callback(struct repeating_timer *t) {
+  core1_timer_triggered = true;
+  return true;
+}
 
-Timer Timer1;
-Timer Timer2;
-
+// Watchdog用
+#include "hardware/watchdog.h"
+volatile bool core1_alive;  // core1の生存確認用フラグ
 
 void setup() {
+
+  watchdog_enable(2000, 1);  // watchdogを有効化．
+  /* 2000ms(=2s)経っても反応がない場合，
+  システムが暴走したとみなして強制再起動 */
 
   //LED初期化
   pinMode(LED_ICS, OUTPUT);
@@ -46,7 +47,7 @@ void setup() {
   pinMode(LED_GPS, OUTPUT);
   pinMode(LED_SD, OUTPUT);
 
-  Serial.begin(460800, SERIAL_8E1); //DEBUG用USB-UART
+  Serial.begin(460800, SERIAL_8E1);  //DEBUG用USB-UART
 
   //ESP用・Under用UART初期化
   initUART();
@@ -63,10 +64,10 @@ void setup() {
   Wire1.begin();
   Wire.setClock(400000);
   Wire1.setClock(400000);
-  
 
-  //USB接続時のために起動待機（7秒）
-  #ifdef DEBUG_MODE //DEBUG_MODEが有効ならば
+
+//USB接続時のために起動待機（7秒）
+#ifdef DEBUG_MODE  //DEBUG_MODEが有効ならば
   for (int i = 1; i <= 7; i++) {
     digitalWrite(LED_ICS, HIGH);
     digitalWrite(LED_Under, HIGH);
@@ -84,44 +85,28 @@ void setup() {
     delay(500);
   }
   Serial.println("DEBUG MODE Enabled");
-  #endif //DEBUG_MODEが有効ならば
+#endif  //DEBUG_MODEが有効ならば
 
 
   SDP810_init();
   AS5600_init();
   BMP3XX_init();
 
-  Timer1.setInterval(10); //10ms(=100Hz)ごとにTimer1内の動作を実行
-  Timer2.setInterval(10); //10ms(=100Hz)ごとにTimer2内の動作を実行
+  // ハードウェアタイマー起動
+  add_repeating_timer_ms(-10, core0_timer_callback, NULL, &core0_timer);
 }
 
 
 //CPU1のセットアップ
-void setup1(){
-  delay(3000); //とりあえずdelay挟んでいるが，特に意味は無い...
+void setup1() {
+  // ハードウェアタイマーの設定はコアごとに
+  add_repeating_timer_ms(-10, core1_timer_callback, NULL, &core1_timer);
 }
 
 
 void loop() {
-
-  func_100Hz();
-
-}
-
-void loop1() {
-
-}
-
-
-
-//UART送信，SD書き込み用カウント変数
-int transmit_count = 0;
-// int flash_count = 0;
-
-void func_100Hz() {
-  //100Hz周期で実行
-  Timer1.run([]() -> void {
-    
+  if (core0_timer_triggered == true) {
+    core0_timer_triggered = false;  // タイマーのフラグを戻す
     read_bmp_air();
 
     read_AS5600();
@@ -135,14 +120,31 @@ void func_100Hz() {
 
     //対気速度の計算にSDPとBMPの値を使うので，BMPとSDPの値取得後に計算
     data_air_sdp_airspeed_ms = sqrt(abs(2.0 * data_air_sdp_differentialPressure_Pa * ((data_air_bmp_temperature_deg + 273.15) / (data_air_bmp_pressure_hPa * 100.0)) * 287.026));
-    
+
+
+    // Core1生存確認
+    if (core1_alive == true) {
+      watchdog_update();  // Watchdogに合図を送る
+
+      core1_alive = false;  // core1生存フラグを戻す
+    }
+  }
+}
+
+void loop1() {
+  if (core1_timer_triggered == true) {
+    core1_timer_triggered = false;  // タイマーのフラグを戻す
+
     //機体下読み取り
     receiveLog();
 
+    // 高度計算．機体下・胴体桁電装の値を使うからUART受信後に計算
     calculate_altitude();
 
-    //UART送信とSD書き込み
+    // UART送信用カウント変数
+    static int transmit_count = 0;
 
+    // UART送信
     transmitLog(transmit_count);
     transmit_count++;
     //一通り送信(=transmit_countが4以上)したらカウントリセット
@@ -150,12 +152,6 @@ void func_100Hz() {
       transmit_count = 0;
     }
 
-    // flashSD(flash_count);
-    // flash_count++;
-    // //一通り書き込んだらカウントリセット
-    // if (flash_count > 3) {
-    //   flash_count = 0;
-    // }    
-    
-  });
+    core1_alive = true;  // core1生存フラグを立てる
+  }
 }

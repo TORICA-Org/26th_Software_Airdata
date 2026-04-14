@@ -22,10 +22,10 @@ extern const int Serial_ICS_TX;
 extern const int Serial_ICS_RX;
 extern const int Serial_GPS_TX;
 extern const int Serial_GPS_RX;
-extern const int SerialAir_xiao_TX;
-extern const int SerialAir_xiao_RX;
-extern const int SerialUnder_TX;
-extern const int SerialUnder_RX;
+extern const int Serial_Air_xiao_TX;
+extern const int Serial_Air_xiao_RX;
+extern const int Serial_Under_TX;
+extern const int Serial_Under_RX;
 
 //I2Cピン設定
 extern const int bico_I2C0_SDA;

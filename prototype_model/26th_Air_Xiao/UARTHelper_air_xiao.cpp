@@ -1,4 +1,6 @@
 #include "UARTHelper_air_xiao.h"
+#include "parameters.h"
+#include "Air_xiao_config.h"
 #include <Arduino.h>
 
 
@@ -19,7 +21,7 @@ void initUART() {
   // `E`:偶数パリティ(`N`:パリティなし，`O`:奇数パリティ)
   // `1`:ストップビット(データフレームの終わりを示すビット)の長さ
   // デフォルトでは`SERIAL_8N1`となっている．
-  Serial1_Under.begin(460800, SERIAL_8E1);
+  Bico_UART.begin(460800, SERIAL_8N1, BICO_UART_RX, BICO_UART_TX);
 
   Serial.begin(115200);  // デバッグ用にパリティはいらないかな...ってか使えない気がする
   Serial.print("loading...\n\n");
