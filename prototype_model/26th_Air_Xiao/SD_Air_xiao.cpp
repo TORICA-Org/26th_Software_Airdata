@@ -77,7 +77,7 @@ void flashSD(int flash_mode){
             break;
     }
     default: {
-        Serial.println("Invailed argument");
+        Serial.println("Invalid argument");
     }
     }
 }
