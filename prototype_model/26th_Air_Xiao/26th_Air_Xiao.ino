@@ -14,7 +14,6 @@
 #include "SD_Air_xiao.h"
 #include "UARTHelper_air_xiao.h"
 #include <TORICA_UART.h>
-#include "SD_Air_xiao.h"
 
 
 constexpr char SSID[] = "SerialWeb";
