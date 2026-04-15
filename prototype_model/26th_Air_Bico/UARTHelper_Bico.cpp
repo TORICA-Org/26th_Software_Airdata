@@ -1,12 +1,13 @@
 #include <Arduino.h>
 #include "UARTHelper_Bico.h"
+#include "Bico_config.h"
 
 #define Serial_ICS Serial1    //ICSのUART // `Serial_ICS`を`Serial1`としてマクロを登録
 #define Serial_Under Serial2  //UnderのUART // `Serial_Under`を`Serial2`としてマクロを登録
 
 //PIO UARTの宣言
-SerialPIO Serial_GPS(2, 3, 1024);    // GPS
-SerialPIO Serial_ESP(17, 16, 1024);  // ESP32との通信
+SerialPIO Serial_GPS(Serial_GPS_TX, Serial_GPS_RX, 1024);    // GPS
+SerialPIO Serial_ESP(Serial_Air_xiao_TX, Serial_Air_xiao_RX, 1024);  // エアデータESP32との通信
 // SerialPIO.h内プロトタイプ宣言：`SerialPIO(pin_size_t tx, pin_size_t rx, size_t fifoSize = 32);`
 // 本プログラムにおいては`fifosize`について考慮の余地あり
 
@@ -22,10 +23,10 @@ char trans_buff[512];  // 送信する文字列を保存するためのバッフ
 void initUART() {
 
   //UARTピン設定
-  Serial_ICS.setTX(0);
-  Serial_ICS.setRX(1);
-  Serial_Under.setTX(4);
-  Serial_Under.setRX(5);
+  Serial_ICS.setTX(Serial_ICS_TX);
+  Serial_ICS.setRX(Serial_ICS_RX);
+  Serial_Under.setTX(Serial_Under_TX);
+  Serial_Under.setRX(Serial_Under_RX);
 
   // UART初期化（<-まだ通信の開始処理はされていない）
   Serial_ICS.setFIFOSize(1024);    // バッファ(受信したデータの一時保管場所)サイズ指定(1024byte)
@@ -49,37 +50,37 @@ void initUART() {
 
 void transmitHeader() {
   // この関数は`setup()`内なのでブロッキング関数（処理の流れが止まる関数）であっても構わない
-  const char **str;  // `const char`型ポインタ（つまり`const`な文字列）のポインタ【書き換え不可】
+  const char *str[3];
 
   for (int i = 0; i < 4 /* case0~3まで実行 */; i++) {
 
     switch (i) {
       case 0:
         {
-          str[1] = "time_ms,takeoff,speed_level,data_air_gps_latitude_deg,";                                             // 4個
-          str[2] = "data_air_gps_longitude_deg,data_air_gps_altitude_m,data_air_gps_groundspeed_ms,data_air_gps_hour,";  // 4個
-          str[3] = "data_air_gps_minute,data_air_gps_second,data_air_gps_centisecond,";                                  // 3個
+          str[0] = "time_ms,takeoff,speed_level,data_air_gps_latitude_deg,";                                             // 4個
+          str[1] = "data_air_gps_longitude_deg,data_air_gps_altitude_m,data_air_gps_groundspeed_ms,data_air_gps_hour,";  // 4個
+          str[2] = "data_air_gps_minute,data_air_gps_second,data_air_gps_centisecond,";                                  // 3個
           break;
         }
       case 1:
         {
-          str[1] = "estimated_altitude_lake_m,data_altitude_bmp_urm_offset_m,data_air_bmp_pressure_hPa, data_air_bmp_temperature_deg,";  // 4個
-          str[2] = "data_air_bmp_altitude_m,data_air_sdp_differentialPressure_Pa,data_air_sdp_airspeed_ms,";                             // 3個
-          str[3] = "data_air_AoA_angle_deg,data_air_AoS_angle_deg,data_ics_angle,";                                                      // 3個
+          str[0] = "estimated_altitude_lake_m,data_altitude_bmp_urm_offset_m,data_air_bmp_pressure_hPa, data_air_bmp_temperature_deg,";  // 4個
+          str[1] = "data_air_bmp_altitude_m,data_air_sdp_differentialPressure_Pa,data_air_sdp_airspeed_ms,";                             // 3個
+          str[2] = "data_air_AoA_angle_deg,data_air_AoS_angle_deg,data_ics_angle,";                                                      // 3個
           break;
         }
       case 2:
         {
-          str[1] = "data_psd_bmp_pressure_hPa,data_psd_bmp_temperature_deg,data_psd_bmp_altitude_m,data_psd_bno_accx_mss,";  // 4個
-          str[2] = "data_psd_bno_accy_mss,data_psd_bno_accz_mss,data_psd_bno_qw,";                                           // 3個
-          str[3] = "data_psd_bno_qx,data_psd_bno_qy,data_psd_bno_qz,";                                                       // 3個
+          str[0] = "data_psd_bmp_pressure_hPa,data_psd_bmp_temperature_deg,data_psd_bmp_altitude_m,data_psd_bno_accx_mss,";  // 4個
+          str[1] = "data_psd_bno_accy_mss,data_psd_bno_accz_mss,data_psd_bno_qw,";                                           // 3個
+          str[2] = "data_psd_bno_qx,data_psd_bno_qy,data_psd_bno_qz,";                                                       // 3個
           break;
         }
       case 3:
         {
-          str[1] = "data_psd_bno_roll,data_psd_bno_pitch,data_psd_bno_yaw,data_psd_bno_cal_system,";                                   // 4個
-          str[2] = "data_psd_bno_cal_gyro,data_psd_bno_cal_accel,data_psd_bno_cal_mag,data_under_bmp_pressure_hPa,";                   // 4個
-          str[3] = "data_under_bmp_temperature_deg,data_under_bmp_altitude_m,data_under_urm_altitude_m,data_under_tsd20_altitude_m,";  // 4個
+          str[0] = "data_psd_bno_roll,data_psd_bno_pitch,data_psd_bno_yaw,data_psd_bno_cal_system,";                                   // 4個
+          str[1] = "data_psd_bno_cal_gyro,data_psd_bno_cal_accel,data_psd_bno_cal_mag,data_under_bmp_pressure_hPa,";                   // 4個
+          str[2] = "data_under_bmp_temperature_deg,data_under_bmp_altitude_m,data_under_urm_altitude_m,data_under_tsd20_altitude_m,";  // 4個
           break;
         }
       default:
@@ -89,7 +90,7 @@ void transmitHeader() {
         }
     }
 
-    sprintf(trans_buff, "%s%s%s", str[1], str[2], str[3]);
+    sprintf(trans_buff, "%s%s%s", str[0], str[1], str[2]);
 
     //バッファをクリアしてから新しいデータを書き込み
     Serial_ESP.flush();
@@ -144,7 +145,7 @@ void transmitLog(int trans_mode) {  // 関数分けるのは面倒なので引�
       }
     case 3:
       {
-        sprintf(trans_buff, "%.2f,%.2f,%.2f,%u,%u,%u,%u,%.2f,%.2f,%.2f,%.2f,%.2f",
+        sprintf(trans_buff, "%.2f,%.2f,%.2f,%u,%u,%u,%u,%.2f,%.2f,%.2f,%.2f,%.2f\n", // 12個．終端なので\nを挿入
         data_psd_bno_roll, data_psd_bno_pitch, data_psd_bno_yaw,
         data_psd_bno_cal_system, data_psd_bno_cal_gyro, data_psd_bno_cal_accel, data_psd_bno_cal_mag,
         data_under_bmp_pressure_hPa, data_under_bmp_temperature_deg, 

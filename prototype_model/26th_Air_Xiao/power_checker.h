@@ -4,3 +4,9 @@
 ------------------------*/
 
 #pragma once
+
+void init_PowerChecker();
+
+float read_voltage_V();
+
+float read_current_mA();

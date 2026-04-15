@@ -1,8 +1,22 @@
+/* まだ作成中 */
+/* これから書くべきこと：
+・処理を100Hz周期で実行するように実装する→ESP32でハードウェアタイマー使える？
+・wifiで送信する内容を精査
+*/
+
+
 #define DEBUG_MODE
 
+#include <Arduino.h>
 #include <SerialWeb.h>
 #include "parameters.h"
+#include "Air_xiao_config.h"
+#include "SD_Air_xiao.h"
+#include "UARTHelper_air_xiao.h"
 #include <TORICA_UART.h>
+#include "power_checker.h"
+
+TaskHandle_t thp[1];  // マルチスレッドのタスクハンドル格納用
 
 
 constexpr char SSID[] = "SerialWeb";
@@ -11,9 +25,25 @@ constexpr char PASSWORD[] = "12345678";
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);  // 内蔵LEDを出力モードに設定
-  Serial.begin(460800);
+
+  xTaskCreatePinnedToCore(loop1, "loop1", 4096, NULL, 3, &thp[0], 0);
+  //xTaskCreatePinnedToCore()がスレッドの宣言です。
+  //内容は([タスク名], "[タスク名]", [スタックメモリサイズ(4096or8192)],
+  //      NULL, [タスク優先順位](1-24,大きいほど優先順位が高い)],
+  //      [宣言したタスクハンドルのポインタ(&thp[0])], [Core ID(0 or 1)]);
+
+  Serial.begin(115200);  // デバッグ用にパリティはいらないかな...ってか使えない気がする
+  Serial.print("loading...\n\n");
+
+  initSD();
+
+  initUART();
+
+  init_PowerChecker();
+
   SerialWeb.begin(SSID, PASSWORD);  // Serialなどと同様に初期化します．
-  Serial1.begin(460800, SERIAL_8N1, D7, D6);
+
+
   delay(1000);
   for (int i = 0; i < 5; i++) {
     digitalWrite(LED_BUILTIN, HIGH);  // 内蔵LED ON
@@ -25,15 +55,11 @@ void setup() {
 
 void loop() {
 
-  // ログを受信＆受信データを変数と紐づけ
-  receiveLog();
-
-
   // send関数で送信したデータは，ダッシュボードに表示されます．
   //sprintf(value, "%ld", millis());
   //SerialWeb.send(label, value);
 
-    //char label[] = "NOW_TIME";
+  //char label[] = "NOW_TIME";
   //char value[32];
   char label1[] = "time_ms";
   char value1[32];
@@ -109,7 +135,7 @@ void loop() {
   char value15[32];
   sprintf(value15, "%.2f", data_air_sdp_differentialPressure_Pa);
   SerialWeb.send(label15, value15);
-  
+
   char label16[] = "air_sdp_airspeed_ms";
   char value16[32];
   sprintf(value16, "%.2f", data_air_sdp_airspeed_ms);
@@ -206,16 +232,24 @@ void loop() {
   SerialWeb.send(label34, value34);
 
   char label35[] = "flight_phase";
-  char value35[32];
+  char value35[8];
   sprintf(value35, "%d", flight_phase);
   SerialWeb.send(label35, value35);
 
   char label36[] = "speed_level";
-  char value36[32];
+  char value36[8];
   sprintf(value36, "%d", speed_level);
   SerialWeb.send(label36, value36);
 
+  char label37[] = "Voltage";
+  char value37[32];
+  snprintf(value37, sizeof(value37), "%.2f", read_voltage_V());
+  SerialWeb.send(label37, value37);
 
+  char label38[] = "Current";
+  char value38[32];
+  snprintf(value38, sizeof(value38), "%.2f", read_current_mA());
+  SerialWeb.send(label38, value38);
 
 
   // print関数やprintln関数はSerialなどと同様に使用できます．
@@ -260,4 +294,18 @@ void loop() {
   Serial.println();
 
   delay(100);
+}
+
+
+void loop1(void *args) {
+
+  // ログを受信＆受信データを変数と紐づけ
+  receiveLog();
+
+  static uint8_t flash_counter = 0;
+  flashSD(flash_counter);
+  flash_counter++;
+  if (flash_counter > 3) {
+    flash_counter = 0;
+  }
 }

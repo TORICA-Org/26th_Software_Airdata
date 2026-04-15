@@ -24,10 +24,10 @@ const int Serial_ICS_TX = 10;
 const int Serial_ICS_RX = 11;
 const int Serial_GPS_TX = 2;
 const int Serial_GPS_RX = 3;
-const int SerialAir_xiao_TX = 16;
-const int SerialAir_xiao_RX = 17;
-const int SerialUnder_TX = 4;
-const int SerialUnder_RX = 5;
+const int Serial_Air_xiao_TX = 16;
+const int Serial_Air_xiao_RX = 17;
+const int Serial_Under_TX = 4;
+const int Serial_Under_RX = 5;
 
 //I2Cピン設定
 const int bico_I2C0_SDA = 20;

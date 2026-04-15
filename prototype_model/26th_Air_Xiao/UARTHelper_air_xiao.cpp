@@ -1,4 +1,6 @@
 #include "UARTHelper_air_xiao.h"
+#include "parameters.h"
+#include "Air_xiao_config.h"
 #include <Arduino.h>
 
 
@@ -11,18 +13,14 @@ char recv_buff[512];  // 受信する文字列を保存するためのバッフ�
 void initUART() {
 
   // UART初期化（<-まだ通信の開始処理はされていない）
-  Serial1.setFIFOSize(1024);    // バッファ(受信したデータの一時保管場所)サイズ指定(1024byte)
+  Serial1.setRxBufferSize(1024); // バッファ(受信したデータの一時保管場所)サイズ指定(1024byte)
 
   // パラメータ設定とともに通信を開始
   // ICS通信の仕様に合わせ，`SERIAL_8E1`としている．
   // `8`:データビットの長さ
   // `E`:偶数パリティ(`N`:パリティなし，`O`:奇数パリティ)
   // `1`:ストップビット(データフレームの終わりを示すビット)の長さ
-  // デフォルトでは`SERIAL_8N1`となっている．
-  Serial1_Under.begin(460800, SERIAL_8E1);
-
-  Serial.begin(115200);  // デバッグ用にパリティはいらないかな...ってか使えない気がする
-  Serial.print("loading...\n\n");
+  Serial1.begin(460800, SERIAL_8E1, BICO_UART_RX, BICO_UART_TX);
 }
 
 
@@ -38,7 +36,7 @@ void receiveLog() {
     // 1回目の送信 11個
     time_ms = Bico_UART.UART_data[0];
     takeoff = Bico_UART.UART_data[1];
-    speed_level = Bico_UART.UART_data[2];
+    speed_level = static_cast<SpeedLevel>(static_cast<int>(Bico_UART.UART_data[2])); // TORICA_UARTのUART_data[]はfloat型なので型を合わせる
     data_air_gps_latitude_deg = Bico_UART.UART_data[3];
     data_air_gps_longitude_deg = Bico_UART.UART_data[4];
     data_air_gps_altitude_m = Bico_UART.UART_data[5];
@@ -49,42 +47,42 @@ void receiveLog() {
     data_air_gps_centisecond = Bico_UART.UART_data[10];
 
     // 2回目の送信 10個
-    estimated_altitude_lake_m = Bico_UART.data[11];
-    data_altitude_bmp_urm_offset_m = Bico_UART.data[12];
-    data_air_bmp_pressure_hPa = Bico_UART.data[13];
-    data_air_bmp_temperature_deg = Bico_UART.data[14];
-    data_air_bmp_altitude_m = Bico_UART.data[15];
-    data_air_sdp_differentialPressure_Pa = Bico_UART.data[16];
-    data_air_sdp_airspeed_ms = Bico_UART.data[17];
-    data_air_AoA_angle_deg = Bico_UART.data[18];
-    data_air_AoS_angle_deg = Bico_UART.data[19];
-    data_ics_angle = Bico_UART.data[20];
+    estimated_altitude_lake_m = Bico_UART.UART_data[11];
+    data_altitude_bmp_urm_offset_m = Bico_UART.UART_data[12];
+    data_air_bmp_pressure_hPa = Bico_UART.UART_data[13];
+    data_air_bmp_temperature_deg = Bico_UART.UART_data[14];
+    data_air_bmp_altitude_m = Bico_UART.UART_data[15];
+    data_air_sdp_differentialPressure_Pa = Bico_UART.UART_data[16];
+    data_air_sdp_airspeed_ms = Bico_UART.UART_data[17];
+    data_air_AoA_angle_deg = Bico_UART.UART_data[18];
+    data_air_AoS_angle_deg = Bico_UART.UART_data[19];
+    data_ics_angle = Bico_UART.UART_data[20];
 
     // 3回目の送信 10個
-    data_psd_bmp_pressure_hPa = Bico_UART.data[21];
-    data_psd_bmp_temperature_deg = Bico_UART.data[22];
-    data_psd_bmp_altitude_m = Bico_UART.data[23];
-    data_psd_bno_accx_mss = Bico_UART.data[24];
-    data_psd_bno_accy_mss = Bico_UART.data[25];
-    data_psd_bno_accz_mss = Bico_UART.data[26];
-    data_psd_bno_qw = Bico_UART.data[27];
-    data_psd_bno_qx = Bico_UART.data[28];
-    data_psd_bno_qy = Bico_UART.data[29];
-    data_psd_bno_qz = Bico_UART.data[30];
+    data_psd_bmp_pressure_hPa = Bico_UART.UART_data[21];
+    data_psd_bmp_temperature_deg = Bico_UART.UART_data[22];
+    data_psd_bmp_altitude_m = Bico_UART.UART_data[23];
+    data_psd_bno_accx_mss = Bico_UART.UART_data[24];
+    data_psd_bno_accy_mss = Bico_UART.UART_data[25];
+    data_psd_bno_accz_mss = Bico_UART.UART_data[26];
+    data_psd_bno_qw = Bico_UART.UART_data[27];
+    data_psd_bno_qx = Bico_UART.UART_data[28];
+    data_psd_bno_qy = Bico_UART.UART_data[29];
+    data_psd_bno_qz = Bico_UART.UART_data[30];
 
     // 4回目の送信 12個
-    data_psd_bno_roll = Bico_UART.data[31];
-    data_psd_bno_pitch = Bico_UART.data[32];
-    data_psd_bno_yaw = Bico_UART.data[33];
-    data_psd_bno_cal_system = Bico_UART.data[34];
-    data_psd_bno_cal_gyro = Bico_UART.data[35];
-    data_psd_bno_cal_accel = Bico_UART.data[36];
-    data_psd_bno_cal_mag = Bico_UART.data[37];
-    data_under_bmp_pressure_hPa = Bico_UART.data[38];
-    data_under_bmp_temperature_deg = Bico_UART.data[39];
-    data_under_bmp_altitude_m = Bico_UART.data[40];
-    data_under_urm_altitude_m = Bico_UART.data[41];
-    data_under_tsd20_altitude_m = Bico_UART.data[42];
+    data_psd_bno_roll = Bico_UART.UART_data[31];
+    data_psd_bno_pitch = Bico_UART.UART_data[32];
+    data_psd_bno_yaw = Bico_UART.UART_data[33];
+    data_psd_bno_cal_system = Bico_UART.UART_data[34];
+    data_psd_bno_cal_gyro = Bico_UART.UART_data[35];
+    data_psd_bno_cal_accel = Bico_UART.UART_data[36];
+    data_psd_bno_cal_mag = Bico_UART.UART_data[37];
+    data_under_bmp_pressure_hPa = Bico_UART.UART_data[38];
+    data_under_bmp_temperature_deg = Bico_UART.UART_data[39];
+    data_under_bmp_altitude_m = Bico_UART.UART_data[40];
+    data_under_urm_altitude_m = Bico_UART.UART_data[41];
+    data_under_tsd20_altitude_m = Bico_UART.UART_data[42];
 
   }
 
