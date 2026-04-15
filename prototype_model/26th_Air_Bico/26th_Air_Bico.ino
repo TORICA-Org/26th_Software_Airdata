@@ -35,10 +35,6 @@ volatile bool core1_alive;  // core1の生存確認用フラグ
 
 void setup() {
 
-  watchdog_enable(2000, 1);  // watchdogを有効化．
-  /* 2000ms(=2s)経っても反応がない場合，
-  システムが暴走したとみなして強制再起動 */
-
   //LED初期化
   pinMode(LED_ICS, OUTPUT);
   pinMode(LED_Under, OUTPUT);
@@ -91,6 +87,10 @@ void setup() {
   SDP810_init();
   AS5600_init();
   BMP3XX_init();
+
+  watchdog_enable(2000, 1);  // watchdogを有効化．
+  /* 2000ms(=2s)経っても反応がない場合，
+  システムが暴走したとみなして強制再起動 */
 
   // ハードウェアタイマー起動
   add_repeating_timer_ms(-10, core0_timer_callback, NULL, &core0_timer);

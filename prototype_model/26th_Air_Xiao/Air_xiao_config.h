@@ -1,5 +1,6 @@
 /* エアデータ ESP32 Xiao用ピン定義ファイル */
 #pragma once
+#include <Arduino.h>
 
 // Bico用UART
 extern const uint8_t BICO_UART_RX; // RX

@@ -50,7 +50,7 @@ void initUART() {
 
 void transmitHeader() {
   // この関数は`setup()`内なのでブロッキング関数（処理の流れが止まる関数）であっても構わない
-  const char **str;  // `const char`型ポインタ（つまり`const`な文字列）のポインタ【書き換え不可】
+  const char *str[3];
 
   for (int i = 0; i < 4 /* case0~3まで実行 */; i++) {
 

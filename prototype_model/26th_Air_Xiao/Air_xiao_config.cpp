@@ -1,5 +1,6 @@
 /* Air ESP32 Xiao用ピン設定 */
 #include "Air_xiao_config.h"
+#include <Arduino.h>
 
 // UART
 const uint8_t BICO_UART_RX = D7;
