@@ -6,33 +6,50 @@
 
 ----------------------------*/
 
+
+/* 基本動作 */
+/*
+・気圧高度を計算する．
+・得られた超音波，LiDAR，気圧高度をもとに，以下のプロセスでパイロットに伝える高度を決定する．
+
+  1. 8m以上→気圧高度のみ．(urm_is_reliable = false)
+  2. 8m未満→超音波高度に切り替え．(urm_is_reliable = true)
+
+*/
+
 #pragma once
 #include <Arduino.h>
 #include "parameters.h"
-
-//移動平均の計算
 #include <TORICA_MoveAve.h>
+
+const float const_platform_altitude_m = 10.6f;  // プラットフォームの高度[m]
+
+
 // 対気速度
 TORICA_MoveAve<5> filtered_airspeed_ms(0);  // 直近5回で取得した機速の平均
-//高度
+
+// 高度
 TORICA_MoveAve<5> filtered_under_bmp_altitude_m(0);   // 直近5回で取得した機体下電装における気圧高度の平均
 TORICA_MoveAve<5> filtered_air_bmp_altitude_m(0);     // 直近5回で取得したエアデータ電装における気圧高度の平均
-TORICA_MoveAve<50> under_bmp_altitude_platform_m(0);  // 直近50回で取得した機体下電装における気圧高度の平均
-TORICA_MoveAve<50> air_bmp_altitude_platform_m(0);    // 直近50回で取得したエアデータ電装における気圧高度の平均
+TORICA_MoveAve<5> filtered_psd_bmp_altitude_m(0);     // 直近5回で取得した胴体桁電装における気圧高度の平均
+
+TORICA_MoveAve<50> air_bmp_altitude_platform_m(0);    // プラホ上で直近50回で取得したエアデータ電装における気圧高度の平均
+TORICA_MoveAve<50> under_bmp_altitude_platform_m(0);  // プラホ上で直近50回で取得した機体下電装における気圧高度の平均
+TORICA_MoveAve<50> psd_bmp_altitude_platform_m(0);    // プラホ上で直近50回で取得した胴体桁電装における気圧高度の平均
+
 
 #include <QuickStats.h>
-float bmp_altitude_lake_array_m[3];
-QuickStats bmp_altitude_lake_m;
+float bmp_altitude_lake_array_m[3]; // Air, Under, PSDの気圧高度を格納
+QuickStats bmp_altitude_lake_m; // Air, Under, PSDの気圧高度の中央値をとるため
 
-// 超音波高度(対地高度)
-TORICA_MoveAve<3> filtered_under_urm_altitude_m(0);
+// 超音波高度
+TORICA_MoveAve<3> filtered_under_urm_altitude_m(0); // 直近3回で取得した超音波高度の平均
 
 #include <TORICA_MoveMedian.h>
-TORICA_MoveMedian<400> altitude_bmp_urm_offset_m(0);
+TORICA_MoveMedian<400> altitude_bmp_urm_offset_m(0); // 直近400回(=100Hzで測定した4秒分のデータ)の気圧高度と超音波高度の差の中央値
 
 
-
-//この関数を実行する前に，read_bmp_air()を実行すること
+// この関数を実行する前に，すべてのセンサー値を取得しておくこと
 void calculate_altitude() {
 
   data_air_bmp_altitude_m = (powf(1013.25 / data_air_bmp_pressure_hPa, 1 / 5.257) - 1) * (data_air_bmp_temperature_deg + 273.15) / 0.0065;
@@ -42,31 +59,11 @@ void calculate_altitude() {
     air_bmp_altitude_platform_m.add(data_air_bmp_altitude_m);
   }
 
+  // (現在の高度) - (プラットフォーム上の平均高度) + (プラホの高度)
   bmp_altitude_lake_array_m[0] = filtered_air_bmp_altitude_m.get() - air_bmp_altitude_platform_m.get() + const_platform_altitude_m;
   bmp_altitude_lake_array_m[1] = filtered_under_bmp_altitude_m.get() - under_bmp_altitude_platform_m.get() + const_platform_altitude_m;
+  bmp_altitude_lake_array_m[2] = filtered_psd_bmp_altitude_m.get() - psd_bmp_altitude_platform_m.get() + const_platform_altitude_m;
 
-  // estimated_altitude_lake_m = (bmp_altitude_lake_array_m[0] - altitude_bmp_urm_offset_m + bmp_altitude_lake_array_m[1]) / 2;
+  estimated_altitude_lake_m = bmp_altitude_lake_m.median(bmp_altitude_lake_array_m, 3); // 3つの気圧高度の中央値をとる
 
-  float a = bmp_altitude_lake_array_m[0];
-  float b = bmp_altitude_lake_array_m[1];
-  estimated_altitude_lake_m = (a - altitude_bmp_urm_offset_m.get() + b) / 2.0f;
-
-  static int transtion_count = 0;
-  if (flight_phase == MID_LEVEL || flight_phase == LOW_LEVEL) {
-    // 気圧センサが本来より低い値ならオフセットは正
-    altitude_bmp_urm_offset_m.add(filtered_under_urm_altitude_m.get() - estimated_altitude_lake_m);
-
-    if (transtion_count < 500) {
-      transtion_count++;
-    }
-    float ratio = 1;
-    if (transtion_count < 500) {
-      ratio = 0;
-    }
-    if (transtion_count > 200) {
-      ratio = (float)(transtion_count - 200) / 300.0;
-    }
-    // 気圧センサが本来より低い値なら正のオフセットを足す
-    estimated_altitude_lake_m += altitude_bmp_urm_offset_m.get() * ratio;
-  }
 }

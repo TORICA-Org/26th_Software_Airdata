@@ -15,3 +15,7 @@ extern const uint8_t SD_MISO;
 // 電流電圧計
 extern const uint8_t Power_Checker_CURRENT;
 extern const uint8_t Power_Checker_VOLTAGE;
+
+// SerialWeb用SSID/PASSWORD
+constexpr char SSID[] = "SerialWeb";
+constexpr char PASSWORD[] = "12345678";

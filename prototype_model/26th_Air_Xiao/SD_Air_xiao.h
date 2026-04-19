@@ -13,4 +13,6 @@
 
 void initSD();
 
+void flashHeader();
+
 void flashSD(int flash_mode);

@@ -39,7 +39,7 @@ void initUART() {
   // `1`:ストップビット(データフレームの終わりを示すビット)の長さ
   // デフォルトでは`SERIAL_8N1`となっている．
   Serial_ICS.begin(115200, SERIAL_8E1);
-  Serial_GPS.begin(9600, SERIAL_8E1);
+  Serial_GPS.begin(9600, SERIAL_8N1); // GPSは8N1で通信
   Serial_ESP.begin(460800, SERIAL_8E1);
   Serial_Under.begin(460800, SERIAL_8E1);
 
@@ -55,32 +55,32 @@ void transmitHeader() {
   for (int i = 0; i < 4 /* case0~3まで実行 */; i++) {
 
     switch (i) {
-      case 0:
-        {
-          str[0] = "time_ms,takeoff,speed_level,data_air_gps_latitude_deg,";                                             // 4個
-          str[1] = "data_air_gps_longitude_deg,data_air_gps_altitude_m,data_air_gps_groundspeed_ms,data_air_gps_hour,";  // 4個
-          str[2] = "data_air_gps_minute,data_air_gps_second,data_air_gps_centisecond,";                                  // 3個
+      case 0: // 11個
+        { 
+          str[0] = "time_ms,takeoff,urm_is_reliable,data_air_gps_hour,"; // 4個
+          str[1] = "data_air_gps_minute,data_air_gps_second,data_air_gps_centisecond,data_air_gps_latitude_deg,"; // 4個
+          str[2] = "data_air_gps_longitude_deg,data_air_gps_altitude_m,data_air_gps_groundspeed_ms,"; // 3個
           break;
         }
       case 1:
-        {
-          str[0] = "estimated_altitude_lake_m,data_altitude_bmp_urm_offset_m,data_air_bmp_pressure_hPa, data_air_bmp_temperature_deg,";  // 4個
-          str[1] = "data_air_bmp_altitude_m,data_air_sdp_differentialPressure_Pa,data_air_sdp_airspeed_ms,";                             // 3個
-          str[2] = "data_air_AoA_angle_deg,data_air_AoS_angle_deg,data_ics_angle,";                                                      // 3個
+        { // 10個
+          str[0] = "filtered_bmp_altitude_m,filtered_urm_altitude_m,data_air_bmp_pressure_hPa,data_air_bmp_temperature_deg,"; // 4個
+          str[1] = "data_air_bmp_altitude_m,data_air_sdp_differentialPressure_Pa,data_air_sdp_airspeed_ms,"; // 3個
+          str[2] = "data_air_AoA_angle_deg,data_air_AoS_angle_deg,data_ics_angle,"; // 3個
           break;
         }
-      case 2:
+      case 2: // 11個
         {
-          str[0] = "data_psd_bmp_pressure_hPa,data_psd_bmp_temperature_deg,data_psd_bmp_altitude_m,data_psd_bno_accx_mss,";  // 4個
-          str[1] = "data_psd_bno_accy_mss,data_psd_bno_accz_mss,data_psd_bno_qw,";                                           // 3個
-          str[2] = "data_psd_bno_qx,data_psd_bno_qy,data_psd_bno_qz,";                                                       // 3個
+          str[0] = "psd_is_alive,data_psd_bno_qw,data_psd_bno_qx,data_psd_bno_qy,"; // 4個
+          str[1] = "data_psd_bno_qz,data_psd_bno_roll,data_psd_bno_pitch,data_psd_bno_yaw,"; // 4個
+          str[2] = "data_psd_bmp_pressure_hPa,data_psd_bmp_temperature_deg,data_psd_bmp_altitude_m,"; // 3個
           break;
         }
-      case 3:
+      case 3: // 13個
         {
-          str[0] = "data_psd_bno_roll,data_psd_bno_pitch,data_psd_bno_yaw,data_psd_bno_cal_system,";                                   // 4個
-          str[1] = "data_psd_bno_cal_gyro,data_psd_bno_cal_accel,data_psd_bno_cal_mag,data_under_bmp_pressure_hPa,";                   // 4個
-          str[2] = "data_under_bmp_temperature_deg,data_under_bmp_altitude_m,data_under_urm_altitude_m,data_under_tsd20_altitude_m,";  // 4個
+          str[0] = "data_psd_bno_accx_mss,data_psd_bno_accy_mss,data_psd_bno_accz_mss,data_psd_bno_cal_system,data_psd_bno_cal_gyro,"; // 5個
+          str[1] = "data_psd_bno_cal_accel,data_psd_bno_cal_mag,under_is_alive,data_under_bmp_pressure_hPa,"; // 4個
+          str[2] = "data_under_bmp_temperature_deg,data_under_bmp_altitude_m,data_under_urm_altitude_m,data_under_tsd20_altitude_m\n"; // 4個
           break;
         }
       default:
@@ -116,40 +116,38 @@ ASCIIコードに変換すると，
 
 
 void transmitLog(int trans_mode) {  // 関数分けるのは面倒なので引数（0~3）でモード変更
-  switch (trans_mode) {
-    case 0:
+  switch (trans_mode) { // 計45個
+    case 0: // 計11個
       {
-        sprintf(trans_buff, "%lu,%d,%d,%.7f,%.7f,%.2f,%.2f,%u,%u,%u,%u",  // 11個
-        time_ms, takeoff, speed_level, 
-        data_air_gps_latitude_deg, data_air_gps_longitude_deg, 
-        data_air_gps_altitude_m, data_air_gps_groundspeed_ms,
-        data_air_gps_hour, data_air_gps_minute, data_air_gps_second, data_air_gps_centisecond);
+        sprintf(trans_buff, "%lu,%d,%d,%u,%u,%u,%u,%.7f,%.7f,%.2f,%.2f,", 
+        time_ms, takeoff, urm_is_reliable, data_air_gps_hour, // 4個
+        data_air_gps_minute, data_air_gps_second, data_air_gps_centisecond, data_air_gps_latitude_deg, // 4個
+        data_air_gps_longitude_deg, data_air_gps_altitude_m, data_air_gps_groundspeed_ms); // 3個
         break;
       }
     case 1:
-      {
-        sprintf(trans_buff, "%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%d", // 10個
-        estimated_altitude_lake_m, data_altitude_bmp_urm_offset_m,
-        data_air_bmp_pressure_hPa, data_air_bmp_temperature_deg, data_air_bmp_altitude_m,
-        data_air_sdp_differentialPressure_Pa, data_air_sdp_airspeed_ms,
-        data_air_AoA_angle_deg, data_air_AoS_angle_deg, data_ics_angle);
+      { // 計10個
+        sprintf(trans_buff, "%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%d,", 
+        filtered_bmp_altitude_m, filtered_urm_altitude_m, data_air_bmp_pressure_hPa, data_air_bmp_temperature_deg, // 4個
+        data_air_bmp_altitude_m, data_air_sdp_differentialPressure_Pa, data_air_sdp_airspeed_ms, // 3個
+        data_air_AoA_angle_deg, data_air_AoS_angle_deg, data_ics_angle); // 3個
         break;
       }
-    case 2:
+    case 2: // 計11個
       {
-        sprintf(trans_buff, "%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f", // 10個
-        data_psd_bmp_pressure_hPa, data_psd_bmp_temperature_deg, data_psd_bmp_altitude_m,
-        data_psd_bno_accx_mss, data_psd_bno_accy_mss, data_psd_bno_accz_mss,
-        data_psd_bno_qw, data_psd_bno_qx, data_psd_bno_qy, data_psd_bno_qz);
+        sprintf(trans_buff, "%d,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,", 
+        psd_is_alive, data_psd_bno_qw, data_psd_bno_qx, data_psd_bno_qy, // 4個
+        data_psd_bno_qz, data_psd_bno_roll, data_psd_bno_pitch, data_psd_bno_yaw, // 4個
+        data_psd_bmp_pressure_hPa, data_psd_bmp_temperature_deg, data_psd_bmp_altitude_m); // 3個
         break;
       }
-    case 3:
+
+    case 3: // 計13個
       {
-        sprintf(trans_buff, "%.2f,%.2f,%.2f,%u,%u,%u,%u,%.2f,%.2f,%.2f,%.2f,%.2f\n", // 12個．終端なので\nを挿入
-        data_psd_bno_roll, data_psd_bno_pitch, data_psd_bno_yaw,
-        data_psd_bno_cal_system, data_psd_bno_cal_gyro, data_psd_bno_cal_accel, data_psd_bno_cal_mag,
-        data_under_bmp_pressure_hPa, data_under_bmp_temperature_deg, 
-        data_under_bmp_altitude_m, data_under_urm_altitude_m, data_under_tsd20_altitude_m);
+        sprintf(trans_buff, "%.2f,%.2f,%.2f,%u,%u,%u,%u,%d,%.2f,%.2f,%.2f,%.2f,%.2f\n", 
+        data_psd_bno_accx_mss, data_psd_bno_accy_mss, data_psd_bno_accz_mss, data_psd_bno_cal_system, data_psd_bno_cal_gyro, // 5個
+        data_psd_bno_cal_accel, data_psd_bno_cal_mag, under_is_alive, data_under_bmp_pressure_hPa, // 4個
+        data_under_bmp_temperature_deg, data_under_bmp_altitude_m, data_under_urm_altitude_m, data_under_tsd20_altitude_m); // 4個
         break;
       }
     default:
