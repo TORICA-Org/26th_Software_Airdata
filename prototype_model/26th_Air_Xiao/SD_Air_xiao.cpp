@@ -61,8 +61,8 @@ void flashHeader() {
         }
       case 3: // 13個
         {
-          str[0] = "data_psd_bno_accx_mss,data_psd_bno_accy_mss,data_psd_bno_accz_mss,data_psd_bno_cal_system,data_psd_bno_cal_gyro,"; // 5個
-          str[1] = "data_psd_bno_cal_accel,data_psd_bno_cal_mag,under_is_alive,data_under_bmp_pressure_hPa,"; // 4個
+          str[0] = "data_psd_bno_accx_mss,data_psd_bno_accy_mss,data_psd_bno_accz_mss,"; // 3個
+          str[1] = "data_psd_bno_calibration,under_is_alive,data_under_bmp_pressure_hPa,"; // 3個
           str[2] = "data_under_bmp_temperature_deg,data_under_bmp_altitude_m,data_under_urm_altitude_m,data_under_tsd20_altitude_m\n"; // 4個
           break;
         }
@@ -116,7 +116,7 @@ void flashSD(int flash_mode){
             break;
         }
          case 3: {
-            sprintf(SD_BUF, "%.2f,%.2f,%.2f,%u,%u,%u,%u,%d,%.2f,%.2f,%.2f,%.2f,%.2f\n", 
+            sprintf(SD_BUF, "%.2f,%.2f,%.2f,%u%u%u%u,%d,%.2f,%.2f,%.2f,%.2f,%.2f\n",  // BNOのキャリブレーションレベルはsystem,gyro,accel,magの順に一つのセルに格納．ex)1111
                 data_psd_bno_accx_mss, data_psd_bno_accy_mss, data_psd_bno_accz_mss, data_psd_bno_cal_system, data_psd_bno_cal_gyro, // 5個
                 data_psd_bno_cal_accel, data_psd_bno_cal_mag, under_is_alive, data_under_bmp_pressure_hPa, // 4個
                 data_under_bmp_temperature_deg, data_under_bmp_altitude_m, data_under_urm_altitude_m, data_under_tsd20_altitude_m); // 4個

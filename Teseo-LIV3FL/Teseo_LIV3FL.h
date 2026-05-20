@@ -9,6 +9,7 @@ public:
     void reboot(void);
     void save(void);
     void coldstart(void);
+		void setfixrate(int rate_Hz);
 
 private:
 	Stream& serial;

@@ -65,7 +65,7 @@ void transmitHeader() {
       case 1:
         { // 10個
           str[0] = "filtered_bmp_altitude_m,filtered_urm_altitude_m,data_air_bmp_pressure_hPa,data_air_bmp_temperature_deg,"; // 4個
-          str[1] = "data_air_bmp_altitude_m,data_air_sdp_differentialPressure_Pa,data_air_sdp_airspeed_ms,"; // 3個
+          str[1] = "data_air_bmp_altitude_m,data_air_sdp_differentialPressure_Pa,data_air_sdp_airspeed_ms,filtered_airspeed_ms,"; // 4個
           str[2] = "data_air_AoA_angle_deg,data_air_AoS_angle_deg,data_ics_angle,"; // 3個
           break;
         }
@@ -129,7 +129,7 @@ void transmitLog(int trans_mode) {  // 関数分けるのは面倒なので引�
       { // 計10個
         sprintf(trans_buff, "%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%d,", 
         filtered_bmp_altitude_m, filtered_urm_altitude_m, data_air_bmp_pressure_hPa, data_air_bmp_temperature_deg, // 4個
-        data_air_bmp_altitude_m, data_air_sdp_differentialPressure_Pa, data_air_sdp_airspeed_ms, // 3個
+        data_air_bmp_altitude_m, data_air_sdp_differentialPressure_Pa, data_air_sdp_airspeed_ms, filtered_airspeed_ms, // 4個
         data_air_AoA_angle_deg, data_air_AoS_angle_deg, data_ics_angle); // 3個
         break;
       }
@@ -168,7 +168,7 @@ void transmitLog(int trans_mode) {  // 関数分けるのは面倒なので引�
 void receiveLog() {
   static unsigned long int last_under_time_ms = 0;
   int readnum = Under_UART.readUART();
-  const int under_data_num = 5;  //正常な場合のデータ受信数
+  const int under_data_num = 6;  //正常な場合のデータ受信数
 
   if (readnum == under_data_num) {
     last_under_time_ms = millis();
@@ -178,6 +178,7 @@ void receiveLog() {
     data_under_bmp_altitude_m = Under_UART.UART_data[2];
     data_under_urm_altitude_m = Under_UART.UART_data[3];
     data_under_tsd20_altitude_m = Under_UART.UART_data[4];
+    takeoff = Under_UART.UART_data[5];
   }
 
   //最終受信時間から1秒以上経過している場合は機体下が死んでいるとみなす

@@ -27,7 +27,7 @@ void initUART() {
 void receiveLog() {
   static unsigned long int last_Bico_time_ms = 0;
   int readnum = Bico_UART.readUART();
-  const int Bico_data_num = 45;  // 正常な場合のデータ受信数
+  const int Bico_data_num = 46;  // 正常な場合のデータ受信数
   bool Bico_is_alive = false; // Bicoが生きているかどうか
 
   if (readnum == Bico_data_num) {
@@ -55,37 +55,38 @@ void receiveLog() {
     data_air_bmp_altitude_m = Bico_UART.UART_data[15];
     data_air_sdp_differentialPressure_Pa = Bico_UART.UART_data[16];
     data_air_sdp_airspeed_ms = Bico_UART.UART_data[17];
-    data_air_AoA_angle_deg = Bico_UART.UART_data[18];
-    data_air_AoS_angle_deg = Bico_UART.UART_data[19];
-    data_ics_angle = Bico_UART.UART_data[20];
+    filtered_airspeed_ms = Bico_UART.UART_data[18];
+    data_air_AoA_angle_deg = Bico_UART.UART_data[19];
+    data_air_AoS_angle_deg = Bico_UART.UART_data[20];
+    data_ics_angle = Bico_UART.UART_data[21];
 
     // 3回目の受信 11個
-    psd_is_alive = static_cast<bool>(Bico_UART.UART_data[21]);
-    data_psd_bno_qw = Bico_UART.UART_data[22];
-    data_psd_bno_qx = Bico_UART.UART_data[23];
-    data_psd_bno_qy = Bico_UART.UART_data[24];
-    data_psd_bno_qz = Bico_UART.UART_data[25];
-    data_psd_bno_roll = Bico_UART.UART_data[26];
-    data_psd_bno_pitch = Bico_UART.UART_data[27];
-    data_psd_bno_yaw = Bico_UART.UART_data[28];
-    data_psd_bmp_pressure_hPa = Bico_UART.UART_data[29];
-    data_psd_bmp_temperature_deg = Bico_UART.UART_data[30];
-    data_psd_bmp_altitude_m = Bico_UART.UART_data[31];
+    psd_is_alive = static_cast<bool>(Bico_UART.UART_data[22]);
+    data_psd_bno_qw = Bico_UART.UART_data[23];
+    data_psd_bno_qx = Bico_UART.UART_data[24];
+    data_psd_bno_qy = Bico_UART.UART_data[25];
+    data_psd_bno_qz = Bico_UART.UART_data[26];
+    data_psd_bno_roll = Bico_UART.UART_data[27];
+    data_psd_bno_pitch = Bico_UART.UART_data[28];
+    data_psd_bno_yaw = Bico_UART.UART_data[29];
+    data_psd_bmp_pressure_hPa = Bico_UART.UART_data[30];
+    data_psd_bmp_temperature_deg = Bico_UART.UART_data[31];
+    data_psd_bmp_altitude_m = Bico_UART.UART_data[32];
 
     // 4回目の受信 13個
-    data_psd_bno_accx_mss = Bico_UART.UART_data[32];
-    data_psd_bno_accy_mss = Bico_UART.UART_data[33];
-    data_psd_bno_accz_mss = Bico_UART.UART_data[34];
-    data_psd_bno_cal_system = Bico_UART.UART_data[35];
-    data_psd_bno_cal_gyro = Bico_UART.UART_data[36];
-    data_psd_bno_cal_accel = Bico_UART.UART_data[37];
-    data_psd_bno_cal_mag = Bico_UART.UART_data[38];
-    under_is_alive = static_cast<bool>(Bico_UART.UART_data[39]);
-    data_under_bmp_pressure_hPa = Bico_UART.UART_data[40];
-    data_under_bmp_temperature_deg = Bico_UART.UART_data[41];
-    data_under_bmp_altitude_m = Bico_UART.UART_data[42];
-    data_under_urm_altitude_m = Bico_UART.UART_data[43];
-    data_under_tsd20_altitude_m = Bico_UART.UART_data[44];
+    data_psd_bno_accx_mss = Bico_UART.UART_data[33];
+    data_psd_bno_accy_mss = Bico_UART.UART_data[34];
+    data_psd_bno_accz_mss = Bico_UART.UART_data[35];
+    data_psd_bno_cal_system = Bico_UART.UART_data[36];
+    data_psd_bno_cal_gyro = Bico_UART.UART_data[37];
+    data_psd_bno_cal_accel = Bico_UART.UART_data[38];
+    data_psd_bno_cal_mag = Bico_UART.UART_data[39];
+    under_is_alive = static_cast<bool>(Bico_UART.UART_data[40]);
+    data_under_bmp_pressure_hPa = Bico_UART.UART_data[41];
+    data_under_bmp_temperature_deg = Bico_UART.UART_data[42];
+    data_under_bmp_altitude_m = Bico_UART.UART_data[43];
+    data_under_urm_altitude_m = Bico_UART.UART_data[44];
+    data_under_tsd20_altitude_m = Bico_UART.UART_data[45];
 
   }
 

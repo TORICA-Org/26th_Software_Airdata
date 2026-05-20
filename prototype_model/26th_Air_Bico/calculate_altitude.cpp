@@ -25,9 +25,6 @@
 const float const_platform_altitude_m = 10.6f;  // プラットフォームの高度[m]
 
 
-// 対気速度
-TORICA_MoveAve<5> filtered_airspeed_ms(0);  // 直近5回で取得した機速の平均
-
 // 高度
 TORICA_MoveAve<5> filtered_under_bmp_altitude_m(0);   // 直近5回で取得した機体下電装における気圧高度の平均
 TORICA_MoveAve<5> filtered_air_bmp_altitude_m(0);     // 直近5回で取得したエアデータ電装における気圧高度の平均
@@ -52,10 +49,11 @@ TORICA_MoveMedian<400> altitude_bmp_urm_offset_m(0); // 直近400回(=100Hzで�
 // この関数を実行する前に，すべてのセンサー値を取得しておくこと
 void calculate_altitude() {
 
+  // 気圧高度計算
   data_air_bmp_altitude_m = (powf(1013.25 / data_air_bmp_pressure_hPa, 1 / 5.257) - 1) * (data_air_bmp_temperature_deg + 273.15) / 0.0065;
   filtered_air_bmp_altitude_m.add(data_air_bmp_altitude_m);
 
-  if (flight_phase == PLATFORM) {
+  if (takeoff == false) { // 離陸前はプラットフォーム上の平均高度を更新する
     air_bmp_altitude_platform_m.add(data_air_bmp_altitude_m);
   }
 
@@ -64,6 +62,18 @@ void calculate_altitude() {
   bmp_altitude_lake_array_m[1] = filtered_under_bmp_altitude_m.get() - under_bmp_altitude_platform_m.get() + const_platform_altitude_m;
   bmp_altitude_lake_array_m[2] = filtered_psd_bmp_altitude_m.get() - psd_bmp_altitude_platform_m.get() + const_platform_altitude_m;
 
-  estimated_altitude_lake_m = bmp_altitude_lake_m.median(bmp_altitude_lake_array_m, 3); // 3つの気圧高度の中央値をとる
+  filtered_bmp_altitude_m = bmp_altitude_lake_m.median(bmp_altitude_lake_array_m, 3); // 3つの気圧高度の中央値をとる
+  /* 気圧高度計算ここまで */
+
+  /* 超音波高度フィルタリング */
+  filtered_under_urm_altitude_m.add(data_under_urm_altitude_m);
+
+  // 超音波高度が信頼できるか判別
+  if (data_under_urm_altitude_m > 8.0) {
+    urm_is_reliable = false;
+  } else {
+    urm_is_reliable = true;
+    filtered_urm_altitude_m = filtered_under_urm_altitude_m.get();
+  }
 
 }

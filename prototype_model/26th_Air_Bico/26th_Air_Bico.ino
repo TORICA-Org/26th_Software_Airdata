@@ -6,6 +6,7 @@
 
 // 各ファイル読み込み
 #include "calculate_altitude.h"
+#include "calculate_airspeed.h"
 #include "AS5600.h"
 #include "BMP3xx.h"
 #include "SDP810.h"
@@ -113,14 +114,6 @@ void loop() {
 
     read_SDP();
 
-    /* 対気速度の計算
-    計算式：\sqrt{| 2 \Delta P \times \frac{T}{P} \times \frac{R}{M} |}
-    ただし R=8.314 \times 10^3 [J/(kmol \cdot K)], M=28.966 [kg/kmol] より R/M=287.026 [J/(kg \cdot K)] として計算
-    */
-
-    //対気速度の計算にSDPとBMPの値を使うので，BMPとSDPの値取得後に計算
-    data_air_sdp_airspeed_ms = sqrt(abs(2.0 * data_air_sdp_differentialPressure_Pa * ((data_air_bmp_temperature_deg + 273.15) / (data_air_bmp_pressure_hPa * 100.0)) * 287.026));
-
 
     // Core1生存確認
     if (core1_alive == true) {
@@ -140,6 +133,9 @@ void loop1() {
 
     // 高度計算．機体下・胴体桁電装の値を使うからUART受信後に計算
     calculate_altitude();
+
+    // 対気速度計算．SDPとBMPの値を使うからUART受信後に計算
+    calculate_airspeed();
 
     // UART送信用カウント変数
     static int transmit_count = 0;
