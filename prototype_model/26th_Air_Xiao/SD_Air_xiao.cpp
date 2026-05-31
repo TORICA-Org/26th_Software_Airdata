@@ -54,15 +54,15 @@ void flashHeader() {
         }
       case 2: // 11個
         {
-          str[0] = "psd_is_alive,data_psd_bno_qw,data_psd_bno_qx,data_psd_bno_qy,"; // 4個
-          str[1] = "data_psd_bno_qz,data_psd_bno_roll,data_psd_bno_pitch,data_psd_bno_yaw,"; // 4個
-          str[2] = "data_psd_bmp_pressure_hPa,data_psd_bmp_temperature_deg,data_psd_bmp_altitude_m,"; // 3個
+          str[0] = "fslg_is_alive,data_fslg_bno_qw,data_fslg_bno_qx,data_fslg_bno_qy,"; // 4個
+          str[1] = "data_fslg_bno_qz,data_fslg_bno_roll,data_fslg_bno_pitch,data_fslg_bno_yaw,"; // 4個
+          str[2] = "data_fslg_bmp_pressure_hPa,data_fslg_bmp_temperature_deg,data_fslg_bmp_altitude_m,"; // 3個
           break;
         }
       case 3: // 13個
         {
-          str[0] = "data_psd_bno_accx_mss,data_psd_bno_accy_mss,data_psd_bno_accz_mss,"; // 3個
-          str[1] = "data_psd_bno_calibration,under_is_alive,data_under_bmp_pressure_hPa,"; // 3個
+          str[0] = "data_fslg_bno_accx_mss,data_fslg_bno_accy_mss,data_fslg_bno_accz_mss,"; // 3個
+          str[1] = "data_fslg_bno_calibration,under_is_alive,data_under_bmp_pressure_hPa,"; // 3個
           str[2] = "data_under_bmp_temperature_deg,data_under_bmp_altitude_m,data_under_urm_altitude_m,data_under_tsd20_altitude_m\n"; // 4個
           break;
         }
@@ -108,17 +108,17 @@ void flashSD(int flash_mode){
         }
         case 2: {
             sprintf(SD_BUF, "%d,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,", 
-                psd_is_alive, data_psd_bno_qw, data_psd_bno_qx, data_psd_bno_qy, // 4個
-                data_psd_bno_qz, data_psd_bno_roll, data_psd_bno_pitch, data_psd_bno_yaw, // 4個
-                data_psd_bmp_pressure_hPa, data_psd_bmp_temperature_deg, data_psd_bmp_altitude_m); // 3個
+                fslg_is_alive, data_fslg_bno_qw, data_fslg_bno_qx, data_fslg_bno_qy, // 4個
+                data_fslg_bno_qz, data_fslg_bno_roll, data_fslg_bno_pitch, data_fslg_bno_yaw, // 4個
+                data_fslg_bmp_pressure_hPa, data_fslg_bmp_temperature_deg, data_fslg_bmp_altitude_m); // 3個
             sd.add_str(SD_BUF);
             sd.flash();
             break;
         }
          case 3: {
             sprintf(SD_BUF, "%.2f,%.2f,%.2f,%u%u%u%u,%d,%.2f,%.2f,%.2f,%.2f,%.2f\n",  // BNOのキャリブレーションレベルはsystem,gyro,accel,magの順に一つのセルに格納．ex)1111
-                data_psd_bno_accx_mss, data_psd_bno_accy_mss, data_psd_bno_accz_mss, data_psd_bno_cal_system, data_psd_bno_cal_gyro, // 5個
-                data_psd_bno_cal_accel, data_psd_bno_cal_mag, under_is_alive, data_under_bmp_pressure_hPa, // 4個
+                data_fslg_bno_accx_mss, data_fslg_bno_accy_mss, data_fslg_bno_accz_mss, data_fslg_bno_cal_system, data_fslg_bno_cal_gyro, // 5個
+                data_fslg_bno_cal_accel, data_fslg_bno_cal_mag, under_is_alive, data_under_bmp_pressure_hPa, // 4個
                 data_under_bmp_temperature_deg, data_under_bmp_altitude_m, data_under_urm_altitude_m, data_under_tsd20_altitude_m); // 4個
             sd.add_str(SD_BUF);
             sd.flash();

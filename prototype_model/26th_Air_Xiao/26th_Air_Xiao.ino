@@ -58,13 +58,13 @@ void core0_func100Hz(){
   Serial.print(data_air_AoA_angle_deg);
   Serial.print("\t");
   Serial.print("Roll:");
-  Serial.print(data_psd_bno_roll);
+  Serial.print(data_fslg_bno_roll);
   Serial.print("\t");
   Serial.print("Pitch:");
-  Serial.print(data_psd_bno_pitch);
+  Serial.print(data_fslg_bno_pitch);
   Serial.print("\t");
   Serial.print("Yaw:");
-  Serial.print(data_psd_bno_yaw);
+  Serial.print(data_fslg_bno_yaw);
   Serial.print("\t");
   Serial.print("BMP_Temp:");
   Serial.print(data_air_bmp_temperature_deg);

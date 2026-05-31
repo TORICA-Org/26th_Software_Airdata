@@ -23,7 +23,7 @@ static constexpr char label_bno_eular[] = "bno_eular: roll,pitch,yaw";
 static char value_bno_eular[32];
 
 // bmp
-static constexpr char label_bmp[] = "bmp_alt: air, under, psd";
+static constexpr char label_bmp[] = "bmp_alt: air, under, fslg";
 static char value_bmp[16];
 
 // URM, TSD20
@@ -58,15 +58,15 @@ void sendSerialWeb(){
     SerialWeb.send(label_voltage_current, value_voltage_current);
 
     // bnoのキャリブレーション状態
-    sprintf(value_bno_calib, "%u, %u, %u, %u", data_psd_bno_cal_system, data_psd_bno_cal_gyro, data_psd_bno_cal_accel, data_psd_bno_cal_mag);
+    sprintf(value_bno_calib, "%u, %u, %u, %u", data_fslg_bno_cal_system, data_fslg_bno_cal_gyro, data_fslg_bno_cal_accel, data_fslg_bno_cal_mag);
     SerialWeb.send(label_bno_calib, value_bno_calib);
 
     // bnoのroll,pitch,yaw
-    sprintf(value_bno_eular, "%.2f, %.2f, %.2f", data_psd_bno_roll, data_psd_bno_pitch, data_psd_bno_yaw);
+    sprintf(value_bno_eular, "%.2f, %.2f, %.2f", data_fslg_bno_roll, data_fslg_bno_pitch, data_fslg_bno_yaw);
     SerialWeb.send(label_bno_eular, value_bno_eular);
 
-    // bmpの高度(air,under,psdの順)
-    sprintf(value_bmp, "%.2f, %.2f, %.2f", data_air_bmp_altitude_m, data_under_bmp_altitude_m, data_psd_bmp_altitude_m);
+    // bmpの高度(air,under,fslgの順)
+    sprintf(value_bmp, "%.2f, %.2f, %.2f", data_air_bmp_altitude_m, data_under_bmp_altitude_m, data_fslg_bmp_altitude_m);
     SerialWeb.send(label_bmp, value_bmp);
 
     // URMとTSD20の高度(air, underの順)

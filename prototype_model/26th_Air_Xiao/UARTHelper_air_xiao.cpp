@@ -61,26 +61,26 @@ void receiveLog() {
     data_ics_angle = Bico_UART.UART_data[21];
 
     // 3回目の受信 11個
-    psd_is_alive = static_cast<bool>(Bico_UART.UART_data[22]);
-    data_psd_bno_qw = Bico_UART.UART_data[23];
-    data_psd_bno_qx = Bico_UART.UART_data[24];
-    data_psd_bno_qy = Bico_UART.UART_data[25];
-    data_psd_bno_qz = Bico_UART.UART_data[26];
-    data_psd_bno_roll = Bico_UART.UART_data[27];
-    data_psd_bno_pitch = Bico_UART.UART_data[28];
-    data_psd_bno_yaw = Bico_UART.UART_data[29];
-    data_psd_bmp_pressure_hPa = Bico_UART.UART_data[30];
-    data_psd_bmp_temperature_deg = Bico_UART.UART_data[31];
-    data_psd_bmp_altitude_m = Bico_UART.UART_data[32];
+    fslg_is_alive = static_cast<bool>(Bico_UART.UART_data[22]);
+    data_fslg_bno_qw = Bico_UART.UART_data[23];
+    data_fslg_bno_qx = Bico_UART.UART_data[24];
+    data_fslg_bno_qy = Bico_UART.UART_data[25];
+    data_fslg_bno_qz = Bico_UART.UART_data[26];
+    data_fslg_bno_roll = Bico_UART.UART_data[27];
+    data_fslg_bno_pitch = Bico_UART.UART_data[28];
+    data_fslg_bno_yaw = Bico_UART.UART_data[29];
+    data_fslg_bmp_pressure_hPa = Bico_UART.UART_data[30];
+    data_fslg_bmp_temperature_deg = Bico_UART.UART_data[31];
+    data_fslg_bmp_altitude_m = Bico_UART.UART_data[32];
 
     // 4回目の受信 13個
-    data_psd_bno_accx_mss = Bico_UART.UART_data[33];
-    data_psd_bno_accy_mss = Bico_UART.UART_data[34];
-    data_psd_bno_accz_mss = Bico_UART.UART_data[35];
-    data_psd_bno_cal_system = Bico_UART.UART_data[36];
-    data_psd_bno_cal_gyro = Bico_UART.UART_data[37];
-    data_psd_bno_cal_accel = Bico_UART.UART_data[38];
-    data_psd_bno_cal_mag = Bico_UART.UART_data[39];
+    data_fslg_bno_accx_mss = Bico_UART.UART_data[33];
+    data_fslg_bno_accy_mss = Bico_UART.UART_data[34];
+    data_fslg_bno_accz_mss = Bico_UART.UART_data[35];
+    data_fslg_bno_cal_system = Bico_UART.UART_data[36];
+    data_fslg_bno_cal_gyro = Bico_UART.UART_data[37];
+    data_fslg_bno_cal_accel = Bico_UART.UART_data[38];
+    data_fslg_bno_cal_mag = Bico_UART.UART_data[39];
     under_is_alive = static_cast<bool>(Bico_UART.UART_data[40]);
     data_under_bmp_pressure_hPa = Bico_UART.UART_data[41];
     data_under_bmp_temperature_deg = Bico_UART.UART_data[42];

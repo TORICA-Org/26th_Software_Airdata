@@ -28,16 +28,16 @@ const float const_platform_altitude_m = 10.6f;  // プラットフォームの�
 // 高度
 TORICA_MoveAve<5> filtered_under_bmp_altitude_m(0);   // 直近5回で取得した機体下電装における気圧高度の平均
 TORICA_MoveAve<5> filtered_air_bmp_altitude_m(0);     // 直近5回で取得したエアデータ電装における気圧高度の平均
-TORICA_MoveAve<5> filtered_psd_bmp_altitude_m(0);     // 直近5回で取得した胴体桁電装における気圧高度の平均
+TORICA_MoveAve<5> filtered_fslg_bmp_altitude_m(0);     // 直近5回で取得した胴体桁電装における気圧高度の平均
 
 TORICA_MoveAve<50> air_bmp_altitude_platform_m(0);    // プラホ上で直近50回で取得したエアデータ電装における気圧高度の平均
 TORICA_MoveAve<50> under_bmp_altitude_platform_m(0);  // プラホ上で直近50回で取得した機体下電装における気圧高度の平均
-TORICA_MoveAve<50> psd_bmp_altitude_platform_m(0);    // プラホ上で直近50回で取得した胴体桁電装における気圧高度の平均
+TORICA_MoveAve<50> fslg_bmp_altitude_platform_m(0);    // プラホ上で直近50回で取得した胴体桁電装における気圧高度の平均
 
 
 #include <QuickStats.h>
-float bmp_altitude_lake_array_m[3]; // Air, Under, PSDの気圧高度を格納
-QuickStats bmp_altitude_lake_m; // Air, Under, PSDの気圧高度の中央値をとるため
+float bmp_altitude_lake_array_m[3]; // Air, Under, fslgの気圧高度を格納
+QuickStats bmp_altitude_lake_m; // Air, Under, fslgの気圧高度の中央値をとるため
 
 // 超音波高度
 TORICA_MoveAve<3> filtered_under_urm_altitude_m(0); // 直近3回で取得した超音波高度の平均
@@ -60,7 +60,7 @@ void calculate_altitude() {
   // (現在の高度) - (プラットフォーム上の平均高度) + (プラホの高度)
   bmp_altitude_lake_array_m[0] = filtered_air_bmp_altitude_m.get() - air_bmp_altitude_platform_m.get() + const_platform_altitude_m;
   bmp_altitude_lake_array_m[1] = filtered_under_bmp_altitude_m.get() - under_bmp_altitude_platform_m.get() + const_platform_altitude_m;
-  bmp_altitude_lake_array_m[2] = filtered_psd_bmp_altitude_m.get() - psd_bmp_altitude_platform_m.get() + const_platform_altitude_m;
+  bmp_altitude_lake_array_m[2] = filtered_fslg_bmp_altitude_m.get() - fslg_bmp_altitude_platform_m.get() + const_platform_altitude_m;
 
   filtered_bmp_altitude_m = bmp_altitude_lake_m.median(bmp_altitude_lake_array_m, 3); // 3つの気圧高度の中央値をとる
   /* 気圧高度計算ここまで */

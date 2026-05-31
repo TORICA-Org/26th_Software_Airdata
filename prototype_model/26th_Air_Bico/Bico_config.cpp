@@ -11,7 +11,7 @@
 
 //ピン宣言用
 //Bico air_rp2040用
-//LED設定
+// LED設定
 const int LED_ICS = 8;
 const int LED_Under = 9;
 const int LED_Air_pico = 10;
@@ -19,7 +19,7 @@ const int LED_Air_xiao = 11;
 const int LED_GPS = 12;
 const int LED_SD = 13;
 
-//UARTピン設定
+// UARTピン設定
 const int Serial_ICS_TX = 10;
 const int Serial_ICS_RX = 11;
 const int Serial_GPS_TX = 2;
@@ -29,13 +29,13 @@ const int Serial_Air_xiao_RX = 17;
 const int Serial_Under_TX = 4;
 const int Serial_Under_RX = 5;
 
-//I2Cピン設定
+// I2Cピン設定
 const int bico_I2C0_SDA = 20;
 const int bico_I2C0_SCL = 21;
 const int bico_I2C1_SDA = 26;
 const int bico_I2C1_SCL = 27;
 
-//SDピン設定
+// SDピン設定
 const int SD_CS = 1;
 const int SD_SCK = 2;
 const int SD_MOSI = 3;
