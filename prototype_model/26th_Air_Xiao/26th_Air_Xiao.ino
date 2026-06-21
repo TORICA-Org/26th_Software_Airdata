@@ -1,3 +1,9 @@
+/*---  ESP32S3 Xiao用  ---*/
+// Core0: マイコン内部のシステム処理，SerialWebの処理，電流電圧計
+// Core1: UART受信とSD書き込み
+/*------------------------*/
+
+
 #define DEBUG_MODE
 
 #include <Arduino.h>
@@ -7,113 +13,109 @@
 #include "SD_Air_xiao.h"
 #include "UARTHelper_air_xiao.h"
 #include "power_checker.h"
+#include "SDandUART_wrapper.h"
 
 TaskHandle_t thp[1];  // マルチスレッドのタスクハンドル格納用
+
+
+// デバッグ用タスクマネージャー
+void printTaskStats() {
+  // 統計情報を格納するバッファ
+  char statsBuffer[1024];
+  
+  // FreeRTOSのランタイム統計を取得
+  vTaskGetRunTimeStats(statsBuffer);
+  
+  Serial.println("=========================================");
+  Serial.println("Task Name       Abs Time (us)   % Time");
+  Serial.println("=========================================");
+  Serial.println(statsBuffer);
+}
+
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);  // 内蔵LEDを出力モードに設定
 
-  // ESP32って標準でloop1()関数使えないんだってさ
-  xTaskCreatePinnedToCore(loop1, "loop1", 4096, NULL, 3, &thp[0], 0);
-  //xTaskCreatePinnedToCore()がスレッドの宣言です。
-  //内容は([タスク名], "[タスク名]", [スタックメモリサイズ(4096or8192)],
-  //      NULL, [タスク優先順位](1-24,大きいほど優先順位が高い)],
-  //      [宣言したタスクハンドルのポインタ(&thp[0])], [Core ID(0 or 1)]);
-
   Serial.begin(115200);  // デバッグ用にパリティはいらないかな...ってか使えない気がする
   Serial.print("loading...\n\n");
 
-  initSD(); // SD初期化
-  flashHeader(); // csvヘッダー書き込み
+  // Core1のタスク初期化
+  setupSDandUART(); // SDとUARTの初期化
 
-  initUART();
+  // Core0のタスク初期化
+  init_PowerChecker(); // 電流電圧計の初期化
+  initSerialWeb(); // SerialWebの初期化
 
-  init_PowerChecker();
-
-  initSerialWeb();
-
-  delay(1000);
-  for (int i = 0; i < 5; i++) {
+  // 内蔵LEDを点滅
+  delay(100);
+  for (int i = 0; i < 2; i++) {
     digitalWrite(LED_BUILTIN, HIGH);  // 内蔵LED ON
     delay(1000);
     digitalWrite(LED_BUILTIN, LOW);  // 内蔵LED OFF
     delay(1000);
   }
-}
 
 
+  xTaskCreatePinnedToCore(Core0_Task, "Core0_Task", 4096, NULL, 3, &thp[0], 0);
 
-
-void core0_func100Hz(){
-  static int send_counter = 0;
-  send_counter++;
-  if (send_counter == 100 /* 1秒に1回送信*/){ 
-  sendSerialWeb();
-
-  /* USBシリアル
-  Serial.print("AoS_angle_deg:");
-  Serial.print(data_air_AoS_angle_deg);
-  Serial.print("\t");
-  Serial.print("AoA_angle_deg:");
-  Serial.print(data_air_AoA_angle_deg);
-  Serial.print("\t");
-  Serial.print("Roll:");
-  Serial.print(data_fslg_bno_roll);
-  Serial.print("\t");
-  Serial.print("Pitch:");
-  Serial.print(data_fslg_bno_pitch);
-  Serial.print("\t");
-  Serial.print("Yaw:");
-  Serial.print(data_fslg_bno_yaw);
-  Serial.print("\t");
-  Serial.print("BMP_Temp:");
-  Serial.print(data_air_bmp_temperature_deg);
-  Serial.print("\t");
-  Serial.print("BMP_Pres:");
-  Serial.print(data_air_bmp_pressure_hPa);
-  Serial.print("\t");
-  Serial.print("BMP_Alt:");
-  Serial.print(data_air_bmp_altitude_m);
-  Serial.print("\t");
-  Serial.print("Airspeed:");
-  Serial.print(data_air_sdp_airspeed_ms);
-  Serial.println();
+  /* xTaskCreatePinnedToCore(
+  Core0_Task, // [1] 実行する関数名
+  "Task_on_Core0", // [2] タスクに名付ける名前（デバッグ用）
+  4096, // [3] スタックメモリサイズ
+  NULL, // [4] 関数に渡す引数（なければNULL）
+  2, // [5] タスクの優先度（数値が大きいほど優先される）
+  &thp[0], // [6] タスクハンドル（不要ならNULL ）
+  0 // [7] タスクを実行するコア番号（0または1）
+  )
   */
 
-  send_counter = 0;  // カウンターを0にリセット
-
-  }
-
+  xTaskCreatePinnedToCore(Core1_Task, "Core1_Task", 4096, NULL, 5, &thp[1], 1);
 }
 
 
 
-/* 以下100Hz実行用．ESP32でハードウェアタイマー使う方法まだ知らないから一旦API使わない方法で． */
 
-uint32_t last_time_core0 = 0;
+// Core0で行う処理
+void Core0_Task(void *args) {
+  // TickType_t xLastWakeTime = xTaskGetTickCount();     // タスクの開始時間を取得
+  // const TickType_t xFrequency = pdMS_TO_TICKS(1000);  // 1000ms周期
+
+  // while (1) {  // ループさせたいので無限ループにする．FreeRTOSの仕様
+
+  //   vTaskDelayUntil(&xLastWakeTime, xFrequency);  // vTaskDelayUntil()は指定した周期でタスクを実行するための関数．
+  //   extractLogData();
+  //   sendSerialWeb();
+
+  //   /* デバッグ用 */
+  //   Serial.println(millis());
+  //   printTaskStats(); // FreeRTOSのタスク統計情報を表示
+  //   /* ここまで */
+
+  // }
+
+  while (1){
+    processCore0_ParseAndWeb();
+    Serial.println("Core0_Task");
+  }
+}
+
+
+// FreeRTOSにタスクを管理してもらうので，loop()内は空
 void loop() {
-  if (millis() - last_time_core0 >= 10){
-
-    core0_func100Hz();
-
-    last_time_core0 = millis(); // 最後の実行時間を更新
-  }
+  vTaskDelay(pdMS_TO_TICKS(1000));
 }
 
 
-uint32_t last_time_core1 = 0;
-void loop1(void *args) {
-  if (millis() - last_time_core1 >= 10){
-    // 10msごとに実行する処理をここに書く
 
-    receiveLog(); // UARTからのデータ受信＆受信データを変数と紐づけ
+// Core1で行う処理．
+void Core1_Task(void *args) {
+  TickType_t xLastWakeTime = xTaskGetTickCount();     // タスクの開始時間を取得
+  const TickType_t xFrequency = pdMS_TO_TICKS(10);  // 10ms周期
 
-    static uint8_t flash_counter = 0;
-    flashSD(flash_counter);
-    flash_counter++;
-    if (flash_counter > 3) {
-      flash_counter = 0;
-    }
-    last_time_core1 = millis(); // 最後の実行時間を更新
-    }
+  while (1) {  // ループさせたいので無限ループにする．FreeRTOSの仕様
+
+    vTaskDelayUntil(&xLastWakeTime, xFrequency);  // vTaskDelayUntil()は指定した周期でタスクを実行するための関数．
+
+    processCore1_UARTtoSD(); // UART受信とSD書き込みを行うタスク
+  }
 }

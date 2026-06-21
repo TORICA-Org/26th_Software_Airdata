@@ -15,10 +15,10 @@
 
 extern SensirionI2CSdp sdp;
 
-bool SDP810_init(void);
+bool SDP31_init(void);
 
 void read_SDP(void);
 
-//float SDP810_getdifferentialPressure_Pa(void);
+//float SDP31_getdifferentialPressure_Pa(void);
 
 

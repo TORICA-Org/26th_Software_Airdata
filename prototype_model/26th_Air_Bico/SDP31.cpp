@@ -1,6 +1,6 @@
 /*---------------------------------------------------------
 
-このファイルの役割：SDP810の初期化＆値取得用コード
+このファイルの役割：SDP31の初期化＆値取得用コード
 最終更新日：2026/01/26 19:00
 更新内容：ファイル作成
 
@@ -9,16 +9,16 @@
 #include <Arduino.h>
 #include <SensirionI2CSdp.h>
 #include <Wire.h>
-#include "SDP810.h"
+#include "SDP31.h"
 #include "parameters.h"
 
 SensirionI2CSdp sdp;
 
-bool SDP810_init(void) {
+bool SDP31_init(void) {
     uint16_t error;
     char errorMessage[256];
 
-    sdp.begin(Wire, SDP8XX_I2C_ADDRESS_0);
+    sdp.begin(Wire, SDP31_I2C_ADDRESS_2);
 
     uint32_t productNumber;
     uint8_t serialNumber[8];
@@ -83,7 +83,7 @@ void read_SDP(void){
     }
 }
 
-// float SDP810_getdifferentialPressure_Pa(void) {
+// float SDP31_getdifferentialPressure_Pa(void) {
 //     uint16_t error;
 //     char errorMessage[256];
 

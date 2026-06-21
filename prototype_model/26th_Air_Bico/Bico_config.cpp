@@ -28,6 +28,9 @@ const int Serial_Air_xiao_TX = 16;
 const int Serial_Air_xiao_RX = 17;
 const int Serial_Under_TX = 4;
 const int Serial_Under_RX = 5;
+const int Serial_fslg_TX = 6;
+const int Serial_fslg_RX = 7;
+
 
 // I2Cピン設定
 const int bico_I2C0_SDA = 20;

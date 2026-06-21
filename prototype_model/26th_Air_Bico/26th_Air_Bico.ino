@@ -9,7 +9,7 @@
 #include "calculate_airspeed.h"
 #include "AS5600.h"
 #include "BMP3xx.h"
-#include "SDP810.h"
+#include "SDP31.h"
 #include "UARTHelper_Bico.h"
 
 
@@ -85,7 +85,7 @@ void setup() {
 #endif  //DEBUG_MODEが有効ならば
 
 
-  SDP810_init();
+  SDP31_init();
   AS5600_init();
   BMP3XX_init();
 

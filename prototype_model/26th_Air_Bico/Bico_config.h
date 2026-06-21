@@ -26,6 +26,8 @@ extern const int Serial_Air_xiao_TX;
 extern const int Serial_Air_xiao_RX;
 extern const int Serial_Under_TX;
 extern const int Serial_Under_RX;
+extern const int Serial_fslg_TX;
+extern const int Serial_fslg_RX;
 
 //I2Cピン設定
 extern const int bico_I2C0_SDA;

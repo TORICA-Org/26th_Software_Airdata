@@ -3,8 +3,8 @@
 #include <Arduino.h>
 
 // UART
-const uint8_t BICO_UART_RX = D7;
-const uint8_t BICO_UART_TX = D6;
+const uint8_t BICO_UART_RX = 44;
+const uint8_t BICO_UART_TX = 43;
 
 // SDカードのピン設定
 const uint8_t SD_CS = D0;
