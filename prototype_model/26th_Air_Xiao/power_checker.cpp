@@ -3,14 +3,15 @@
 このファイルの役割：電流電圧測定
 
 ------------------------*/
+
 #include "power_checker.h"
 #include "Air_xiao_config.h"
 #include <Arduino.h>
 
 // 使用抵抗の定数（電流測定，LT6106用）
-const float R_SENSE = 51.0; // シャント抵抗
-const float R_IN = 990.0; // 入力抵抗
-const float R_OUT = 388.0; // 出力抵抗
+const float R_SENSE = 0.1; // シャント抵抗
+const float R_IN = 100.0; // 入力抵抗
+const float R_OUT = 2000.0; // 出力抵抗
 
 // 使用抵抗の定数（電圧測定用）
 const float R1 = 10 * 1000.0; // 10kΩ

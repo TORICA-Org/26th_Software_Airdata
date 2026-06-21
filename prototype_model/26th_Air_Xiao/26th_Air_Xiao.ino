@@ -77,8 +77,8 @@ void setup() {
 
 // Core0で行う処理
 void Core0_Task(void *args) {
-  // TickType_t xLastWakeTime = xTaskGetTickCount();     // タスクの開始時間を取得
-  // const TickType_t xFrequency = pdMS_TO_TICKS(1000);  // 1000ms周期
+  TickType_t xLastWakeTime = xTaskGetTickCount();     // タスクの開始時間を取得
+  const TickType_t xFrequency = pdMS_TO_TICKS(1000);  // 1000ms周期
 
   // while (1) {  // ループさせたいので無限ループにする．FreeRTOSの仕様
 
@@ -94,8 +94,9 @@ void Core0_Task(void *args) {
   // }
 
   while (1){
+    vTaskDelayUntil(&xLastWakeTime, xFrequency);
     processCore0_ParseAndWeb();
-    Serial.println("Core0_Task");
+    printTaskStats();
   }
 }
 
