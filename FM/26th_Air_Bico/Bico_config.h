@@ -35,9 +35,5 @@ extern const int bico_I2C0_SCL;
 extern const int bico_I2C1_SDA;
 extern const int bico_I2C1_SCL;
 
-
-//SD用ピン設定
-extern const int SD_CS;
-extern const int SD_SCK;
-extern const int SD_MOSI;
-extern const int SD_MISO;
+// リセットボタン
+extern const int RESET_BTN;

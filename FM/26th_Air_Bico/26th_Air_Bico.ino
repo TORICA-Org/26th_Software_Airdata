@@ -51,7 +51,7 @@ void setup() {
   pinMode(LED_GPS, OUTPUT);
   pinMode(LED_SD, OUTPUT);
 
-  Serial.begin(460800, SERIAL_8E1);  //DEBUG用USB-UART
+  Serial.begin(115200, SERIAL_8E1);  //DEBUG用USB-UART
 
   //ESP用・Under用UART初期化
   initUART();
@@ -68,10 +68,9 @@ void setup() {
   Wire1.begin();
   Wire.setClock(400000);
   Wire1.setClock(400000);
-
-
-//USB接続時のために起動待機（7秒）
-#ifdef DEBUG_MODE  //DEBUG_MODEが有効ならば
+  
+  //USB接続時のために起動待機（7秒）
+  #ifdef DEBUG_MODE  //DEBUG_MODEが有効ならば
   for (int i = 1; i <= 7; i++) {
     digitalWrite(LED_ICS, HIGH);
     digitalWrite(LED_Under, HIGH);
@@ -89,18 +88,22 @@ void setup() {
     delay(500);
   }
   Serial.println("DEBUG MODE Enabled");
-#endif  //DEBUG_MODEが有効ならば
-
+  #endif  //DEBUG_MODEが有効ならば
 
   SDP31_init();
+  Serial.println("SDP init done");
   AS5600_init();
+  Serial.println("AS5600x2 setup done");
   BMP3XX_init();
+  Serial.println("BMP setup done");
 
   watchdog_enable(2000, 1);  // watchdogを有効化．
   /* 2000ms(=2s)経っても反応がない場合，システムが暴走したとみなして強制再起動 */
 
   // ハードウェアタイマー起動
   add_repeating_timer_ms(-10, core0_timer_callback, NULL, &core0_timer);
+
+  Serial.println("All setup is done");
 }
 
 
@@ -113,12 +116,19 @@ void setup1() {
 
 void loop() {
   if (core0_timer_triggered == true) {
+
     core0_timer_triggered = false;  // タイマーのフラグを戻す
+
+    time_ms = millis(); // センサー読み取り時刻を記録
+
     read_bmp_air();
 
     read_AS5600();
 
     read_SDP();
+
+    Serial.print("time_ms:  ");
+    Serial.println(time_ms);
 
 
     // Core1生存確認

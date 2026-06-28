@@ -3,11 +3,12 @@
 #include "Bico_config.h"
 
 #define Serial_ICS Serial1    //ICSのUART // `Serial_ICS`を`Serial1`としてマクロを登録
-#define Serial_Under Serial2  //UnderのUART // `Serial_Under`を`Serial2`としてマクロを登録
+// #define Serial_Under Serial2  //UnderのUART // `Serial_Under`を`Serial2`としてマクロを登録
 
 //PIO UARTの宣言
 SerialPIO Serial_ESP(Serial_Air_xiao_TX, Serial_Air_xiao_RX, 1024);  // エアデータESP32との通信
 SerialPIO Serial_fslg(Serial_fslg_TX, Serial_fslg_RX, 1024); // 胴体桁基板(fslg)との通信
+SerialPIO Serial_Under(Serial_Under_TX, Serial_Under_RX, 1024);
 // SerialPIO.h内プロトタイプ宣言：`SerialPIO(pin_size_t tx, pin_size_t rx, size_t fifoSize = 32);`
 // 本プログラムにおいては`fifosize`について考慮の余地あり
 
@@ -29,12 +30,12 @@ void initUART() {
   //UARTピン設定
   Serial_ICS.setTX(Serial_ICS_TX);
   Serial_ICS.setRX(Serial_ICS_RX);
-  Serial_Under.setTX(Serial_Under_TX);
-  Serial_Under.setRX(Serial_Under_RX);
+  // Serial_Under.setTX(Serial_Under_TX);
+  // Serial_Under.setRX(Serial_Under_RX);
 
   // UART初期化（<-まだ通信の開始処理はされていない）
   Serial_ICS.setFIFOSize(2048);    // バッファ(受信したデータの一時保管場所)サイズ指定(2048byte)
-  Serial_Under.setFIFOSize(2048);  // バッファ(受信したデータの一時保管場所)サイズ指定(2048byte)
+  // Serial_Under.setFIFOSize(2048);  // バッファ(受信したデータの一時保管場所)サイズ指定(2048byte)
 
   // パラメータ設定とともに通信を開始
   // ICS通信の仕様に合わせ，`SERIAL_8E1`としている．
@@ -45,8 +46,9 @@ void initUART() {
   Serial_ICS.begin(115200, SERIAL_8E1);
   Serial_ESP.begin(460800, SERIAL_8E1);
   Serial_Under.begin(460800, SERIAL_8E1);
+  Serial_fslg.begin(460800, SERIAL_8E1);
 
-  Serial.begin(115200);  // デバッグ用にパリティはいらないかな...ってか使えない気がする
+  // Serial.begin(115200);  // デバッグ用にパリティはいらないかな...ってか使えない気がする
   Serial.print("loading...\n\n");
 }
 

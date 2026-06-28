@@ -34,6 +34,9 @@ bool SDP31_init(void) {
         Serial.print("Error trying to execute readProductIdentifier(): ");
         Serial.println(errorMessage);
         #endif DEBUG_MODE
+
+        // センサーが見つからなかった場合，ここで処理を打ち切り
+        return false;
     } else {
       #ifdef DEBUG_MODE
         Serial.print("ProductNumber:");

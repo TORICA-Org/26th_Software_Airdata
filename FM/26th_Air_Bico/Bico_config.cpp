@@ -15,21 +15,21 @@
 const int LED_ICS = 8;
 const int LED_Under = 9;
 const int LED_Air_pico = 10;
-const int LED_Air_xiao = 11;
-const int LED_GPS = 12;
-const int LED_SD = 13;
+const int LED_Air_xiao = 22;
+const int LED_GPS = 23;
+const int LED_SD = 24;
 
 // UARTピン設定
-const int Serial_ICS_TX = 10;
-const int Serial_ICS_RX = 11;
-const int Serial_GPS_TX = 2;
-const int Serial_GPS_RX = 3;
-const int Serial_Air_xiao_TX = 16;
-const int Serial_Air_xiao_RX = 17;
-const int Serial_Under_TX = 4;
-const int Serial_Under_RX = 5;
-const int Serial_fslg_TX = 6;
-const int Serial_fslg_RX = 7;
+const int Serial_ICS_TX = 0;
+const int Serial_ICS_RX = 1; // 使ってない架空のピンにする
+const int Serial_GPS_TX = 14; // Bico TX <-> GPS RX
+const int Serial_GPS_RX = 13; // Bico RX <-> GPS TX
+const int Serial_Air_xiao_TX = 4;
+const int Serial_Air_xiao_RX = 5;
+const int Serial_Under_TX = 2;
+const int Serial_Under_RX = 3;
+const int Serial_fslg_TX = 12;
+const int Serial_fslg_RX = 18;
 
 
 // I2Cピン設定
@@ -38,8 +38,5 @@ const int bico_I2C0_SCL = 21;
 const int bico_I2C1_SDA = 26;
 const int bico_I2C1_SCL = 27;
 
-// SDピン設定
-const int SD_CS = 1;
-const int SD_SCK = 2;
-const int SD_MOSI = 3;
-const int SD_MISO = 4;
+// リセットボタン
+const int RESET_BTN = 11;

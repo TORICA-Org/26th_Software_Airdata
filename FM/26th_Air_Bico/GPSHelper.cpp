@@ -1,17 +1,17 @@
 #include "GPSHelper.h"
 #include <TinyGPSPlus.h>
 #include "parameters.h"
+#include "Bico_config.h"
 
-SerialPIO Serial_GPS(Serial_GPS_TX, Serial_GPS_RX, 1024);
+SerialPIO Serial_GPS(Serial_GPS_TX, Serial_GPS_RX, 2048);
 
 // TinyGPSPlusインスタンス化
-TInyGPSPlus gps;
+TinyGPSPlus gps;
 TinyGPSCustom headingDeg(gps, "GNRMC", 8); // TinyGPSPlusのカスタムコード．Teseo LIV3FLは$GNRMCの8番目のフィールドに進行方向を示す値を出力する．
 
 
 void initGPS(){
     Serial_GPS.begin(9600, SERIAL_8N1); // GPSは8N1で通信
-    Serial_Under.setFIFOSize(2048);
     Serial.print("GNSS Initialization Complete");
 }
 
@@ -27,7 +27,7 @@ void read_gps(){
             data_air_gps_latitude_deg = gps.location.lat();
             data_air_gps_longitude_deg = gps.location.lng();
             data_air_gps_altitude_m = gps.altitude.meters();
-            data_air_gps_groundspeed_ms = gps.speed.lmph() * 1000 / 3600;
+            data_air_gps_groundspeed_ms = gps.speed.kmph() * 1000 / 3600;
             data_air_gps_heading_deg = atof(headingDeg.value());
 
         }
