@@ -7,11 +7,12 @@ SerialPIO Serial_GPS(Serial_GPS_TX, Serial_GPS_RX, 2048);
 
 // TinyGPSPlusインスタンス化
 TinyGPSPlus gps;
-TinyGPSCustom headingDeg(gps, "GNRMC", 8); // TinyGPSPlusのカスタムコード．Teseo LIV3FLは$GNRMCの8番目のフィールドに進行方向を示す値を出力する．
 
+// TinyGPSPlusのカスタムコード．Teseo LIV3FLは$GNRMCの8番目のフィールドに進行方向を示す値を出力する．
+TinyGPSCustom headingDeg(gps, "GNRMC", 8); 
 
 void initGPS(){
-    Serial_GPS.begin(9600, SERIAL_8N1); // GPSは8N1で通信
+    Serial_GPS.begin(460800, SERIAL_8N1); // GPSは8N1で通信
     Serial.print("GNSS Initialization Complete");
 }
 
@@ -29,6 +30,7 @@ void read_gps(){
             data_air_gps_altitude_m = gps.altitude.meters();
             data_air_gps_groundspeed_ms = gps.speed.kmph() * 1000 / 3600;
             data_air_gps_heading_deg = atof(headingDeg.value());
+            data_air_gps_satellites = gps.satellites.value(); // 衛星補足数を取得
 
         }
     }

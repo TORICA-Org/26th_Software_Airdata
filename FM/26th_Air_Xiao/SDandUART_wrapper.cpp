@@ -34,8 +34,8 @@ void processCore0_ParseAndWeb() {
     // バッファを各データに分解
     int parsed_num = Bico_UART.parseBuffer(rxData.text);
     // 53個揃っているかチェック
-    if (parsed_num == 53) {
-      extractLogData(parsed_num);  // 53個入っているかの確認はextractLogData()内でも行われているので，正直意味はないね
+    if (parsed_num == 54) {
+      extractLogData(parsed_num);  // 54個入っているかの確認はextractLogData()内でも行われているので，正直意味はないね
     }
   }
 

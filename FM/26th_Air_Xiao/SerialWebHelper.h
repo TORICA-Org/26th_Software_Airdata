@@ -8,3 +8,5 @@
 void initSerialWeb();
 
 void sendSerialWeb();
+
+void SerialWeb_detectRESET();

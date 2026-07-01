@@ -38,9 +38,13 @@ static char value_airspeed[16];
 static constexpr char label_AoA_AoS[] = "AoA, AoS";
 static char value_AoA_AoS[16];
 
-// GPS
-static constexpr char label_gps[] = "gps: lat, lon";
-static char value_gps[32];
+// GPS緯度経度
+static constexpr char label_gps1[] = "GPS: lat, lon";
+static char value_gps1[32];
+
+// GPS衛星補足数
+static constexpr char label_gps2[] = "GPS: satellites"
+static char value_gps2[8];
 
 // ICS_angle
 static constexpr char label_ics_angle[] = "ICS_angle";
@@ -82,8 +86,12 @@ void sendSerialWeb(){
     SerialWeb.send(label_AoA_AoS, value_AoA_AoS);
 
     // GPS lat,lon
-    sprintf(value_gps, "%.7f, %.7f", data_air_gps_latitude_deg, data_air_gps_longitude_deg);
-    SerialWeb.send(label_gps, value_gps);
+    sprintf(value_gps1, "%.7f, %.7f", data_air_gps_latitude_deg, data_air_gps_longitude_deg);
+    SerialWeb.send(label_gps1, value_gps1);
+
+    // GPS衛星補足数
+    sprintf(value_gps2, "%u", data_air_gps_satellites);
+    SerialWeb.send(label_gps2, value_gps2);
 
     // ICS_angle
     sprintf(value_ics_angle, "%d", data_ics_angle);

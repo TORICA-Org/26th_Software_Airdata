@@ -60,11 +60,11 @@ void transmitHeader() {
   for (int i = 0; i < 4 /* case0~3まで実行 */; i++) {
 
     switch (i) {
-      case 0: // 12個
+      case 0: // 13個
       { 
         str[0] = "time_ms,takeoff,urm_is_reliable,data_air_gps_hour,"; // 4個
         str[1] = "data_air_gps_minute,data_air_gps_second,data_air_gps_centisecond, data_air_gps_latitude_deg,"; // 4個
-        str[2] = "data_air_gps_longitude_deg,data_air_gps_altitude_m, data_air_gps_groundspeed_ms,data_air_gps_heading_deg,"; // 4個  
+        str[2] = "data_air_gps_longitude_deg,data_air_gps_altitude_m, data_air_gps_groundspeed_ms,data_air_gps_heading_deg,data_air_gps_satellites,"; // 5個  
         break;
         }
       case 1:
@@ -121,12 +121,12 @@ ASCIIコードに変換すると，
 
 void transmitLog(int trans_mode) {  // 関数分けるのは面倒なので引数（0~3）でモード変更
   switch (trans_mode) { // 計53個
-    case 0: // 計12個
+    case 0: // 計13個
       {
-        sprintf(trans_buff, "%lu,%d,%d,%u,%u,%u,%u,%.7f,%.7f,%.2f,%.2f,%.1f,", 
+        sprintf(trans_buff, "%lu,%d,%d,%u,%u,%u,%u,%.7f,%.7f,%.2f,%.2f,%.1f,%u,", 
         time_ms, takeoff, urm_is_reliable, data_air_gps_hour, // 4個
         data_air_gps_minute, data_air_gps_second, data_air_gps_centisecond, data_air_gps_latitude_deg, // 4個
-        data_air_gps_longitude_deg, data_air_gps_altitude_m, data_air_gps_groundspeed_ms,data_air_gps_heading_deg // 4個
+        data_air_gps_longitude_deg, data_air_gps_altitude_m, data_air_gps_groundspeed_ms,data_air_gps_heading_deg,data_air_gps_satellites // 5個
         );
         break;
       }
@@ -181,12 +181,12 @@ void transmitLog(int trans_mode) {  // 関数分けるのは面倒なので引�
 // 胴体桁向け送信関数
 void transmitLog_for_fslg(int trans_mode) {  // 関数分けるのは面倒なので引数（0~3）でモード変更
   switch (trans_mode) { // 計29個
-    case 0: // 計12個
+    case 0: // 計13個
       {
-        sprintf(trans_buff, "%lu,%d,%d,%u,%u,%u,%u,%.7f,%.7f,%.2f,%.2f,%.1f,", 
+        sprintf(trans_buff, "%lu,%d,%d,%u,%u,%u,%u,%.7f,%.7f,%.2f,%.2f,%.1f,%u,", 
         time_ms, takeoff, urm_is_reliable, data_air_gps_hour, // 4個
         data_air_gps_minute, data_air_gps_second, data_air_gps_centisecond, data_air_gps_latitude_deg, // 4個
-        data_air_gps_longitude_deg, data_air_gps_altitude_m, data_air_gps_groundspeed_ms,data_air_gps_heading_deg // 4個
+        data_air_gps_longitude_deg, data_air_gps_altitude_m, data_air_gps_groundspeed_ms,data_air_gps_heading_deg, data_air_gps_satellites // 5個
         );
         break;
       }

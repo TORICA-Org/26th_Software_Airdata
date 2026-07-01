@@ -18,6 +18,7 @@ Core1: UART送受信，高度・対気速度計算
 #include "BMP3xx.h"
 #include "SDP31.h"
 #include "UARTHelper_Bico.h"
+#include "GPSHelper.h"
 
 
 // 100Hzタイマー用
@@ -56,10 +57,13 @@ void setup() {
   //ESP用・Under用UART初期化
   initUART();
 
-  //SD内csv用ヘッダー送信
+  // GPS初期化
+  initGPS();
+
+  // SD内csv用ヘッダー送信
   transmitHeader();
 
-  //Bico I2C0初期化動作
+  // Bico I2C0初期化動作
   Wire.setSDA(bico_I2C0_SDA);
   Wire.setSCL(bico_I2C0_SCL);
   Wire1.setSDA(bico_I2C1_SDA);
@@ -69,7 +73,7 @@ void setup() {
   Wire.setClock(400000);
   Wire1.setClock(400000);
   
-  //USB接続時のために起動待機（7秒）
+  // USB接続時のために起動待機（7秒）
   #ifdef DEBUG_MODE  //DEBUG_MODEが有効ならば
   for (int i = 1; i <= 7; i++) {
     digitalWrite(LED_ICS, HIGH);
@@ -107,7 +111,7 @@ void setup() {
 }
 
 
-//CPU1のセットアップ
+// CPU1のセットアップ
 void setup1() {
   // ハードウェアタイマーの設定はコアごとに
   add_repeating_timer_ms(-10, core1_timer_callback, NULL, &core1_timer);
@@ -119,16 +123,32 @@ void loop() {
 
     core0_timer_triggered = false;  // タイマーのフラグを戻す
 
+    digitalWrite(LED_ICS, HIGH);
+    digitalWrite(LED_Under, HIGH);
+    digitalWrite(LED_Air_pico, HIGH);
+    digitalWrite(LED_Air_xiao, HIGH);
+    digitalWrite(LED_GPS, HIGH);
+    digitalWrite(LED_SD, HIGH);
+
     time_ms = millis(); // センサー読み取り時刻を記録
 
-    read_bmp_air();
+    read_bmp_air(); // BMP390 気圧・気温読み取り
 
-    read_AS5600();
+    read_AS5600(); // AS5600読み取り AoA, AOS
 
-    read_SDP();
+    read_SDP(); // SDP31差圧読み取り．対気速度
+
+    read_gps(); // GPS読み取り
 
     Serial.print("time_ms:  ");
     Serial.println(time_ms);
+
+    digitalWrite(LED_ICS, LOW);
+    digitalWrite(LED_Under, LOW);
+    digitalWrite(LED_Air_pico, LOW);
+    digitalWrite(LED_Air_xiao, LOW);
+    digitalWrite(LED_GPS, LOW);
+    digitalWrite(LED_SD, LOW);
 
 
     // Core1生存確認
