@@ -20,8 +20,8 @@ const int LED_GPS = 23;
 const int LED_SD = 24;
 
 // UARTピン設定
-const int Serial_ICS_TX = 0;
-const int Serial_ICS_RX = 1; // 使ってない架空のピンにする
+const int Serial_ICS_TX = 0;  // 使ってない架空のピンにする．こちら側から送信は行わないので
+const int Serial_ICS_RX = 1;
 const int Serial_GPS_TX = 14; // Bico TX <-> GPS RX
 const int Serial_GPS_RX = 13; // Bico RX <-> GPS TX
 const int Serial_Air_xiao_TX = 4;

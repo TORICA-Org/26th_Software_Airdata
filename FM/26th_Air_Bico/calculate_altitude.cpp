@@ -55,6 +55,8 @@ void calculate_altitude() {
 
   if (takeoff == false) { // 離陸前はプラットフォーム上の平均高度を更新する
     air_bmp_altitude_platform_m.add(data_air_bmp_altitude_m);
+    under_bmp_altitude_platform_m.add(data_under_bmp_altitude_m);
+    fslg_bmp_altitude_platform_m.add(data_fslg_bmp_altitude_m);
   }
 
   // (現在の高度) - (プラットフォーム上の平均高度) + (プラホの高度)

@@ -12,9 +12,10 @@ extern TORICA_UART Bico_UART;    // UARTHelper_air_xiao.cppで定義されてい
 
 // この関数はsetup()内で呼び出す
 void setupSDandUART() {
-  // キューを作成．100Hzで50個，つまり500ms分の遅延を吸収するバッファを確保．
-  uartQueue = xQueueCreate(50, sizeof(UARTData));
-  sdQueue = xQueueCreate(50, sizeof(SDData));
+  // キューを作成．100Hzで10個，つまり100ms分の遅延を吸収するバッファを確保．確保しすぎるとメモリが足りなくなる．
+  uartQueue = xQueueCreate(3, sizeof(UARTData)); // SerialWebのほうは優先度低くていい
+  // sdQueue = xQueueCreate(50, sizeof(SDData));
+  sdQueue = xQueueCreate(5, sizeof(UARTData)); // SDのほうを優先．
 
   initSD();       // SD初期化
   flashHeader();  // csvヘッダー書き込み
@@ -44,11 +45,9 @@ void processCore0_ParseAndWeb() {
 }
 
 
-
-
 void processCore1_ListenUART() {
   static int one_second_counter = 0;
-  UARTData txData;
+  static UARTData txData;
 
   if (Bico_UART.listenUART()) {
 
@@ -65,17 +64,25 @@ void processCore1_ListenUART() {
     if (one_second_counter >= 25) {
       // 1秒に1回Core0へ送信
       xQueueSend(uartQueue, &txData, 0);
-      xQueueSend(sdQueue, &txData, 0); // SDキューにも送る
       one_second_counter = 0;  // カウンターをリセット
     }
   }
+
+  if (RESET_SIG == true){
+    snprintf(txData.text, sizeof(txData.text), "\nRESET\n"); // SDに"RESET"行を送信
+    xQueueSend(sdQueue, &txData, 0);
+
+    RESET_SIG = false;
+  }
+
 }
 
 void processCore1_WriteSD() {
-  UARTData rxData;
+  static UARTData rxData;
 
   // SDカードキューからデータを受信
-  if (xQueueReceive(sdQueue, &rxData, pdMS_TO_TICKS(30)/* 30ms待ってもデータが来なかったらタイムアウト */)) {
+  // if (xQueueReceive(sdQueue, &rxData, pdMS_TO_TICKS(30)/* 30ms待ってもデータが来なかったらタイムアウト */)) {
+  if (xQueueReceive(sdQueue, &rxData, 0) /* データがなければ次の処理へ */){
     // SDバッファに書き込み
     writeBufToSD(rxData.text);
 

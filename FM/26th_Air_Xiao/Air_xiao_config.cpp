@@ -15,8 +15,3 @@ const uint8_t SD_MISO = D9;
 // 電流電圧計
 const uint8_t Power_Checker_CURRENT = D1; // LT6106と接続
 const uint8_t Power_Checker_VOLTAGE = D2; // 分圧回路
-
-// SerialWeb用SSID/PASSWORD
-// .hに記述すること
-// constexpr char SSID[] = "SerialWeb";
-// constexpr char PASSWORD[] = "12345678";

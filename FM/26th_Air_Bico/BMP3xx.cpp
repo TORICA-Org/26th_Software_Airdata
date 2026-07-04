@@ -15,7 +15,7 @@ Adafruit_BMP3XX bmp;
 
 // Bico用
 bool BMP3XX_init(void){
-    if (!bmp.begin_I2C(0x77, &Wire1)) {
+    if (!bmp.begin_I2C(0x76, &Wire1)) {
         #ifdef DEBUG_MODE
         Serial.println("Could not find a valid BMP3 sensor, check wiring!");
         #endif DEBUG_MODE

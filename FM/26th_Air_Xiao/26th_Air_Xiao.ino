@@ -15,21 +15,44 @@
 #include "power_checker.h"
 #include "SDandUART_wrapper.h"
 
-TaskHandle_t thp[1];  // マルチスレッドのタスクハンドル格納用
+TaskHandle_t thp[2];  // マルチスレッドのタスクハンドル格納用
 
 
 // デバッグ用タスクマネージャー
 void printTaskStats() {
-  // 統計情報を格納するバッファ
-  char statsBuffer[1024];
+  // タスク数が多いため、バッファを2048バイトに拡張
+  static char statsBuffer[2048];
   
-  // FreeRTOSのランタイム統計を取得
+  // --------------------------------------------------
+  // 1. CPU使用率の統計（既存の処理）
+  // --------------------------------------------------
   vTaskGetRunTimeStats(statsBuffer);
   
-  Serial.println("=========================================");
+  Serial.println("\n=========================================");
+  Serial.println(" [CPU Time Stats]");
   Serial.println("Task Name       Abs Time (us)   % Time");
-  Serial.println("=========================================");
-  Serial.println(statsBuffer);
+  Serial.println("-----------------------------------------");
+  Serial.print(statsBuffer);
+
+  // --------------------------------------------------
+  // 2. タスクごとのメモリ（スタック空き容量）の統計 ★追加
+  // --------------------------------------------------
+  vTaskList(statsBuffer);
+  
+  Serial.println("-----------------------------------------");
+  Serial.println(" [Task Memory Stats]");
+  Serial.println("Task Name       State  Priority  MinFreeStack(B) Num");
+  Serial.println("-----------------------------------------");
+  Serial.print(statsBuffer);
+
+  // --------------------------------------------------
+  // 3. マイコン全体の空きメモリ（ヒープ） ★追加
+  // --------------------------------------------------
+  Serial.println("-----------------------------------------");
+  Serial.print(" [System Total] Free Heap: ");
+  Serial.print(ESP.getFreeHeap());
+  Serial.println(" Bytes");
+  Serial.println("=========================================\n");
 }
 
 
@@ -41,10 +64,14 @@ void setup() {
 
   // Core1のタスク初期化
   setupSDandUART(); // SDとUARTの初期化
+  Serial.println("SD and UART init done");
 
   // Core0のタスク初期化
   init_PowerChecker(); // 電流電圧計の初期化
+  Serial.println("PowerChecker init done");
+
   initSerialWeb(); // SerialWebの初期化
+  Serial.println("SerialWeb init done.");
 
   // 内蔵LEDを点滅
   delay(100);
@@ -56,7 +83,7 @@ void setup() {
   }
 
 
-  xTaskCreatePinnedToCore(Core0_Task, "Core0_Task", 4096, NULL, 3, &thp[0], 0);
+  // xTaskCreatePinnedToCore(Core0_Task, "Core0_Task", 16384, NULL, 3, &thp[0], 0);
 
   /* xTaskCreatePinnedToCore(
   Core0_Task, // [1] 実行する関数名
@@ -69,7 +96,20 @@ void setup() {
   )
   */
 
-  xTaskCreatePinnedToCore(Core1_Task, "Core1_Task", 4096, NULL, 5, &thp[1], 1);
+  // xTaskCreatePinnedToCore(Core1_Task, "Core1_Task", 16384, NULL, 5, &thp[1], 1);
+
+  Serial.print("Free Heap before task create");
+  Serial.println(ESP.getFreeHeap());
+
+  BaseType_t ret0 = xTaskCreatePinnedToCore(Core0_Task, "Core0_Task", 12288, NULL, 1, &thp[0], 0);
+  if (ret0 != pdPASS) Serial.println("Core0 Task creation failed!");
+
+  Serial.print("Free Heap before Core1: ");
+  Serial.println(ESP.getFreeHeap());
+
+  BaseType_t ret1 = xTaskCreatePinnedToCore(Core1_Task, "Core1_Task", 8192, NULL, 1, &thp[1], 1);
+  if (ret1 != pdPASS) Serial.println("Core1 Task creation failed!");
+  Serial.println("All setup done.");
 }
 
 
@@ -101,6 +141,8 @@ void Core0_Task(void *args) {
   while (1){
     vTaskDelayUntil(&xLastWakeTime, xFrequency);
     processCore0_ParseAndWeb();
+
+    // Serial.println("Core0 running");
     printTaskStats();
   }
 }
@@ -117,5 +159,16 @@ void Core1_Task(void *args) {
 
     processCore1_ListenUART(); // UART受信を行うタスク
     processCore1_WriteSD(); // SD書き込みを行うタスクを実行
+
+    // SerialWebからの"RESET"信号受け取り
+    static uint8_t reset_signal_count = 0;
+    reset_signal_count++;
+    if (reset_signal_count > 20){
+      SerialWeb_detectRESET();
+      reset_signal_count = 0;
+    }
+
+    // Serial.println("Core1 running");
+    
   }
 }

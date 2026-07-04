@@ -14,7 +14,7 @@ void calculate_airspeed() {
     // 対気速度の計算にSDPとBMPの値を使うので，BMPとSDPの値取得後に計算
     // data_air_sdp_airspeed_ms = sqrt(abs(2.0 * data_air_sdp_differentialPressure_Pa * ((data_air_bmp_temperature_deg + 273.15) / (data_air_bmp_pressure_hPa * 100.0)) * 287.026));
 
-    static float measured_airspeed_ms = sqrt(abs(2.0 * data_air_sdp_differentialPressure_Pa * ((data_air_bmp_temperature_deg + 273.15) / (data_air_bmp_pressure_hPa * 100.0)) * 287.026));
+    float measured_airspeed_ms = sqrt(fabs(2.0 * data_air_sdp_differentialPressure_Pa * ((data_air_bmp_temperature_deg + 273.15) / (data_air_bmp_pressure_hPa * 100.0)) * 287.026));
 
     data_air_sdp_airspeed_ms = measured_airspeed_ms; // ここに補正式を入れる
 

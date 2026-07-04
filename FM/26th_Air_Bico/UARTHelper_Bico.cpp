@@ -4,9 +4,10 @@
 
 #define Serial_ICS Serial1    //ICSのUART // `Serial_ICS`を`Serial1`としてマクロを登録
 // #define Serial_Under Serial2  //UnderのUART // `Serial_Under`を`Serial2`としてマクロを登録
+#define Serial_ESP Serial2    // エアデータとESP32との通信
 
 //PIO UARTの宣言
-SerialPIO Serial_ESP(Serial_Air_xiao_TX, Serial_Air_xiao_RX, 1024);  // エアデータESP32との通信
+// SerialPIO Serial_ESP(Serial_Air_xiao_TX, Serial_Air_xiao_RX, 1024);  // エアデータESP32との通信
 SerialPIO Serial_fslg(Serial_fslg_TX, Serial_fslg_RX, 1024); // 胴体桁基板(fslg)との通信
 SerialPIO Serial_Under(Serial_Under_TX, Serial_Under_RX, 1024);
 // SerialPIO.h内プロトタイプ宣言：`SerialPIO(pin_size_t tx, pin_size_t rx, size_t fifoSize = 32);`
@@ -30,8 +31,8 @@ void initUART() {
   //UARTピン設定
   Serial_ICS.setTX(Serial_ICS_TX);
   Serial_ICS.setRX(Serial_ICS_RX);
-  // Serial_Under.setTX(Serial_Under_TX);
-  // Serial_Under.setRX(Serial_Under_RX);
+  Serial_ESP.setTX(Serial_Air_xiao_TX);
+  Serial_ESP.setRX(Serial_Air_xiao_RX);
 
   // UART初期化（<-まだ通信の開始処理はされていない）
   Serial_ICS.setFIFOSize(2048);    // バッファ(受信したデータの一時保管場所)サイズ指定(2048byte)
@@ -97,7 +98,7 @@ void transmitHeader() {
     sprintf(trans_buff, "%s%s%s", str[0], str[1], str[2]);
 
     //バッファをクリアしてから新しいデータを書き込み
-    // Serial_ESP.flush();
+    // ESP.flush();
     Serial_Under.flush();
     // Serial_ESP.print(trans_buff);
     Serial_Under.print(trans_buff);
@@ -298,5 +299,23 @@ void receiveLog() {
   if (data_ics_angle > 0){
     digitalWrite(LED_ICS, HIGH);
   }
-  
+
+  // エアデータ ESP32 XiaoからRESETやCALIBなどのシグナル受信
+  if (ESP_UART.listenUART()){
+    // 文字列のどこかに"RESET"が含まれている場合
+    if (strstr(ESP_UART.buff, "RESET") != NULL){
+      Serial_Under.print("\nRESET\n"); // UnderはUARTを受信するとそのままSD書き込み用バッファに送り込まれる→"\nRESET\n"がそのままSDに書き込まれる．
+      // CSVのイメージ
+      /* 
+      1.23,4.56,
+      RESET
+      7.89,..... 
+      */
+      Serial_fslg.print("RESET"); // 胴体桁基板は受信すると文字列解析にかけられる．
+
+    } else if (strstr(ESP_UART.buff, "CALIB") != NULL) {
+      // 文字列"CALIB"を受け取った場合
+
+    }
+  }
 }

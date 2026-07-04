@@ -1,8 +1,6 @@
 /*
-
 Core0: BMP, SDP, AS5600×2
 Core1: UART送受信，高度・対気速度計算
-
 */
 
 #define DEBUG_MODE  // デバッグモード
@@ -72,9 +70,9 @@ void setup() {
   Wire1.begin();
   Wire.setClock(400000);
   Wire1.setClock(400000);
-  
-  // USB接続時のために起動待機（7秒）
-  #ifdef DEBUG_MODE  //DEBUG_MODEが有効ならば
+
+// USB接続時のために起動待機（7秒）
+#ifdef DEBUG_MODE  //DEBUG_MODEが有効ならば
   for (int i = 1; i <= 7; i++) {
     digitalWrite(LED_ICS, HIGH);
     digitalWrite(LED_Under, HIGH);
@@ -92,7 +90,7 @@ void setup() {
     delay(500);
   }
   Serial.println("DEBUG MODE Enabled");
-  #endif  //DEBUG_MODEが有効ならば
+#endif  //DEBUG_MODEが有効ならば
 
   SDP31_init();
   Serial.println("SDP init done");
@@ -130,18 +128,41 @@ void loop() {
     digitalWrite(LED_GPS, HIGH);
     digitalWrite(LED_SD, HIGH);
 
-    time_ms = millis(); // センサー読み取り時刻を記録
+    time_ms = millis();  // センサー読み取り時刻を記録
 
-    read_bmp_air(); // BMP390 気圧・気温読み取り
+    read_bmp_air();  // BMP390 気圧・気温読み取り
 
-    read_AS5600(); // AS5600読み取り AoA, AOS
+    read_AS5600();  // AS5600読み取り AoA, AOS
 
-    read_SDP(); // SDP31差圧読み取り．対気速度
+    read_SDP();  // SDP31差圧読み取り．対気速度
 
-    read_gps(); // GPS読み取り
+    // GPSは10Hzつまり100msに一回読む．
+    static int gps_counter = 0;
+    if (gps_counter > 10) {
+      read_gps();  // GPS読み取り
+      gps_counter = 0;
+    }
+    gps_counter++;
 
-    Serial.print("time_ms:  ");
-    Serial.println(time_ms);
+
+    // static int debug_counter = 0;
+    // if (debug_counter > 100){
+    // Serial.print("time_ms:  ");
+    // Serial.println(time_ms);
+    // Serial.print("bmp:  ");
+    // Serial.println(data_air_bmp_pressure_hPa);
+    // Serial.print("AoA:  ");
+    // Serial.println(data_air_AoA_angle_deg);
+    // Serial.print("AoS:  ");
+    // Serial.println(data_air_AoS_angle_deg);
+    // Serial.print("SDP:  ");
+    // Serial.println(data_air_sdp_differentialPressure_Pa);
+    // Serial.print("GPS:  ");
+    // Serial.println(data_air_gps_second);
+    // debug_counter = 0;
+    // }
+    // debug_counter++;
+
 
     digitalWrite(LED_ICS, LOW);
     digitalWrite(LED_Under, LOW);
@@ -182,6 +203,14 @@ void loop1() {
     // 一通り送信(=transmit_countが4以上)したらカウントリセット
     if (transmit_count > 3) {
       transmit_count = 0;
+    }
+
+    // 胴体桁送信用カウント変数
+    static int transmit_count_fslg = 0;
+    transmitLog_for_fslg(transmit_count_fslg);
+    transmit_count_fslg++;
+    if (transmit_count_fslg > 2){
+      transmit_count_fslg = 0;
     }
 
     core1_alive = true;  // core1生存フラグを立てる
