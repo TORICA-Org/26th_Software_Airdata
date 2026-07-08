@@ -1,6 +1,8 @@
 #include "Teseo_LIV3FL.h"
 #include <Arduino.h>
 #include <stdint.h>
+#include <TinyGPSPlus.h>
+#include "parameters.h"
 
 /*
 コマンド文字列データフォーマット
@@ -10,7 +12,20 @@ $PSTMSETPAR,1102,0xD*15
 ConfigBlock -> 1, ID -> 102, param_value -> 0xD, checksum->15
 */
 
+// TinyGPSPlusを使った処理
+TinyGPSPlus gps;
 
+
+
+
+
+
+
+
+
+
+
+/*------ 以下Teseo用カスタム関数 -------*/
 
 Teseo_LIV3FL::Teseo_LIV3FL(Stream& serialPort) : serial(serialPort) {}
 
@@ -121,8 +136,12 @@ void Teseo_LIV3FL::setBaudrate(int bps){
     serial.print("$");
     serial.print(cmd_str);
     serial.print("*");
-    
     serial.println(cs); //文字列の末尾なので\r\n付きで送信
+
+    Serial.print("$");
+    Serial.print(cmd_str);
+    Serial.print("*");
+    Serial.println(cs); //USB経由で出力
 }
 
 //更新速度変更コマンド
@@ -133,12 +152,9 @@ void Teseo_LIV3FL::setfixrate(int rate_Hz){
         return;
     }
 
-    //送信するコマンド文字列を格納するポインタ
-    const char* cmd_str = nullptr;
-
-    //swtich文を使わないで
-    cmd_str = "PSTMSETPAR,1101," + String(rate_s, 2); //小数点以下2桁までの文字列に変換
-    String cs = calc_checksum(cmd_str);
+    //送信するコマンド文字列をStringで組み立てる
+    String cmd_str = "PSTMSETPAR,1101," + String(rate_s, 2); //小数点以下2桁までの文字列に変換
+    String cs = calc_checksum(cmd_str.c_str());
 
     serial.print("$");
     serial.print(cmd_str);
