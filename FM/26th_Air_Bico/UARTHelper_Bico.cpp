@@ -294,11 +294,14 @@ void receiveLog() {
 
 
   // ICS読み取り
-  data_ics_angle = ICS.read_Angle();
+  int new_ics_angle = 0;
+  new_ics_angle = ICS.read_Angle();
   digitalWrite(LED_ICS, LOW);
-  if (data_ics_angle > 0){
+  if (new_ics_angle > 0){
+    data_ics_angle = new_ics_angle;
     digitalWrite(LED_ICS, HIGH);
   }
+  
 
   // エアデータ ESP32 XiaoからRESETやCALIBなどのシグナル受信
   if (ESP_UART.listenUART()){

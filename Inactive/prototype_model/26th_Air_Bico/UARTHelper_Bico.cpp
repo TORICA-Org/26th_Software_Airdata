@@ -18,7 +18,7 @@ SerialPIO Serial_Fslg(Serial_Fslg_TX, Serial_Fslg_RX, 1024); // 胴体桁基板(
 TORICA_UART ESP_UART(&Serial_ESP);
 TORICA_UART Under_UART(&Serial_Under);
 TORICA_UART Fslg_UART(&Serial_Fslg);
-char trans_buff[1024];  // 送信する文字列を保存するためのバッファ
+char trans_buff[512];  // 送信する文字列を保存するためのバッファ
 
 
 void initUART() {
@@ -93,9 +93,9 @@ void transmitHeader() {
     sprintf(trans_buff, "%s%s%s", str[0], str[1], str[2]);
 
     //バッファをクリアしてから新しいデータを書き込み
-    // Serial_ESP.flush();
+    Serial_ESP.flush();
     Serial_Under.flush();
-    // Serial_ESP.print(trans_buff);
+    Serial_ESP.print(trans_buff);
     Serial_Under.print(trans_buff);
 
     delayMicroseconds(10);  // 遅延あったほうがいいと思う
@@ -167,53 +167,9 @@ void transmitLog(int trans_mode) {  // 関数分けるのは面倒なので引�
   //バッファをクリアしてから新しいデータを書き込み
   Serial_ESP.flush();
   Serial_Under.flush();
-  // Serial_fslg.flush();
+  Serial_fslg.flush();
   Serial_ESP.print(trans_buff);
   Serial_Under.print(trans_buff);
-  // Serial_fslg.print(trans_buff);
-}
-
-
-// 胴体桁向け送信関数
-void transmitLog_for_fslg(int trans_mode) {  // 関数分けるのは面倒なので引数（0~3）でモード変更
-  switch (trans_mode) { // 計29個
-    case 0: // 計12個
-      {
-        sprintf(trans_buff, "%lu,%d,%d,%u,%u,%u,%u,%.7f,%.7f,%.2f,%.2f,%.1f,", 
-        time_ms, takeoff, urm_is_reliable, data_air_gps_hour, // 4個
-        data_air_gps_minute, data_air_gps_second, data_air_gps_centisecond, data_air_gps_latitude_deg, // 4個
-        data_air_gps_longitude_deg, data_air_gps_altitude_m, data_air_gps_groundspeed_ms,data_air_gps_heading_deg // 4個
-        );
-        break;
-      }
-    case 1:
-      { // 計11個
-        sprintf(trans_buff, "%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%d,", 
-        filtered_bmp_altitude_m, filtered_urm_altitude_m, filtered_airspeed_ms, // 3個
-        data_air_bmp_pressure_hPa, data_air_bmp_temperature_deg, data_air_bmp_altitude_m, // 3個
-        data_air_sdp_differentialPressure_Pa, data_air_sdp_airspeed_ms, // 2個
-        data_air_AoA_angle_deg, data_air_AoS_angle_deg, data_ics_angle); // 3個
-        break;
-      }
-
-    case 2: // 計6個
-      {
-        sprintf(trans_buff, "%d,%.2f,%.2f,%.2f,%.2f,%.2f\n",
-        under_is_alive, // 1個
-        data_under_bmp_pressure_hPa, data_under_bmp_temperature_deg, data_under_bmp_altitude_m, // 3個
-        data_under_urm_altitude_m, data_under_tsd20_altitude_m // 2個
-        );
-        break;
-      }
-    default:
-      {
-        Serial.println("The parameter value is out of range.");
-        break;
-      }
-  }
-
-  //バッファをクリアしてから新しいデータを書き込み
-  Serial_fslg.flush();
   Serial_fslg.print(trans_buff);
 }
 

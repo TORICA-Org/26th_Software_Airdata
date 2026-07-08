@@ -85,7 +85,7 @@ void extractLogData(int readnum) {
     data_air_sdp_differentialPressure_Pa = Bico_UART.UART_data[19];
     data_air_sdp_airspeed_ms = Bico_UART.UART_data[20];
     data_air_AoA_angle_deg = Bico_UART.UART_data[21];
-    data_air_AoS_angle_deg = Bico_UART.UART_data[2];
+    data_air_AoS_angle_deg = Bico_UART.UART_data[22];
     data_ics_angle = Bico_UART.UART_data[23];
 
     // 3回目の受信 14個

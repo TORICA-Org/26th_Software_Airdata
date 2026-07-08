@@ -74,11 +74,6 @@ void setup() {
 
 
 
-// FreeRTOSにタスクを管理してもらうので，loop()内は空
-void loop() {
-  vTaskDelay(pdMS_TO_TICKS(1000));
-}
-
 
 // Core0で行う処理
 void Core0_Task(void *args) {
@@ -106,6 +101,13 @@ void Core0_Task(void *args) {
 }
 
 
+// FreeRTOSにタスクを管理してもらうので，loop()内は空
+void loop() {
+  vTaskDelay(pdMS_TO_TICKS(1000));
+}
+
+
+
 // Core1で行う処理．
 void Core1_Task(void *args) {
   TickType_t xLastWakeTime = xTaskGetTickCount();     // タスクの開始時間を取得
@@ -115,7 +117,6 @@ void Core1_Task(void *args) {
 
     vTaskDelayUntil(&xLastWakeTime, xFrequency);  // vTaskDelayUntil()は指定した周期でタスクを実行するための関数．
 
-    processCore1_ListenUART(); // UART受信を行うタスク
-    processCore1_WriteSD(); // SD書き込みを行うタスクを実行
+    processCore1_UARTtoSD(); // UART受信とSD書き込みを行うタスク
   }
 }

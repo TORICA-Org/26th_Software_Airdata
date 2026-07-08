@@ -99,7 +99,6 @@ extern volatile float data_under_tsd20_altitude_m;
 
 
 struct LogData {
-    // 6個
     bool takeoff;
     uint32_t time_ms;
     float filtered_bmp_altitude_m;
@@ -107,7 +106,7 @@ struct LogData {
     bool urm_is_reliable;
     float filtered_airspeed_ms;
 
-    /* エアデータ 17個*/
+    /* エアデータ */
     float data_air_bmp_pressure_hPa;
     float data_air_bmp_temperature_deg;
     float data_air_bmp_altitude_m;
@@ -126,7 +125,7 @@ struct LogData {
     float data_air_AoS_angle_deg;
     int data_ics_angle;
 
-    /* 胴体桁基板 24個 */
+    /* 胴体桁基板 */
     bool fslg_is_alive;
     float data_fslg_bno_accx_mss;
     float data_fslg_bno_accy_mss;
@@ -152,7 +151,7 @@ struct LogData {
     float data_fslg_lsm_pitch;
     float data_fslg_lsm_yaw;
     
-    /* Under基板 6個*/
+    /* Under基板 */
     bool under_is_alive;
     float data_under_bmp_pressure_hPa;
     float data_under_bmp_temperature_deg;

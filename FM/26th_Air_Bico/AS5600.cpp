@@ -64,8 +64,16 @@ bool AS5600_init(void){
 
 
 void read_AS5600(void){
-  data_air_AoA_angle_deg = AoA.readAngle();
-  data_air_AoS_angle_deg = AoS.readAngle();
+  // .readAngle()で0～4096(12bitなので2^12)の値が返ってくる
+  int raw_AoA = AoA.readAngle();
+  int raw_AoS = AoS.readAngle();
+
+  // 180°(2048)を超えていたら，4096を引いてマイナスにする
+  if (raw_AoA > 2048) raw_AoA -= 4096;
+  if (raw_AoS > 2048) raw_AoS -= 4096;
+
+  data_air_AoA_angle_deg = (raw_AoA * 360.0) / 4096.0;
+  data_air_AoS_angle_deg = (raw_AoS * 360.0) / 4096.0;
 }
 
 

@@ -125,12 +125,12 @@ void extractLogData(int readnum) {
     //   // 受信データ数が異なる場合
     //   return;
 
-  }
-  
-  // 最終受信時間から1秒以上経過している場合はBicoが死んでいるとみなす
-  if (millis() - last_Bico_time_ms > 1000) {
-    Bico_is_alive = false;
   } else {
-    Bico_is_alive = true;
+    // 最終受信時間から1秒以上経過している場合はBicoが死んでいるとみなす
+    if (millis() - last_Bico_time_ms > 1000) {
+      Bico_is_alive = false;
+    } else {
+      Bico_is_alive = true;
+    }
   }
 }

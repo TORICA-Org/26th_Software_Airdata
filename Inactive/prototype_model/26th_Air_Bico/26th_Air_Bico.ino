@@ -90,7 +90,8 @@ void setup() {
   BMP3XX_init();
 
   watchdog_enable(2000, 1);  // watchdogを有効化．
-  /* 2000ms(=2s)経っても反応がない場合，システムが暴走したとみなして強制再起動 */
+  /* 2000ms(=2s)経っても反応がない場合，
+  システムが暴走したとみなして強制再起動 */
 
   // ハードウェアタイマー起動
   add_repeating_timer_ms(-10, core0_timer_callback, NULL, &core0_timer);
@@ -127,7 +128,7 @@ void loop1() {
   if (core1_timer_triggered == true) {
     core1_timer_triggered = false;  // タイマーのフラグを戻す
 
-    // 機体下読み取り
+    //機体下読み取り
     receiveLog();
 
     // 高度計算．機体下・胴体桁電装の値を使うからUART受信後に計算
@@ -142,7 +143,7 @@ void loop1() {
     // UART送信
     transmitLog(transmit_count);
     transmit_count++;
-    // 一通り送信(=transmit_countが4以上)したらカウントリセット
+    //一通り送信(=transmit_countが4以上)したらカウントリセット
     if (transmit_count > 3) {
       transmit_count = 0;
     }

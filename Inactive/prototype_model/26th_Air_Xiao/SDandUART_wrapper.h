@@ -4,7 +4,7 @@
 #include "UARTHelper_air_xiao.h"
 
 struct UARTData {
-    char text[2048]; // Core1からCore0に送信するためのデータを格納するためのバッファ
+    char text[1024]; // Core1からCore0に送信するためのデータを格納するためのバッファ
 };
 
 // 受信したログデータを構造体に引き渡す
@@ -15,5 +15,6 @@ void copyLogDataToSDQueue(void *args);
 void setupSDandUART();
 
 void processCore0_ParseAndWeb();
-void processCore1_ListenUART();
-void processCore1_WriteSD();
+void processCore1_UARTtoSD();
+
+

@@ -12,5 +12,4 @@ extern SerialPIO Serial_ESP;
 void initUART();
 void transmitHeader();
 void transmitLog(int);
-void transmitLog_for_fslg(int);
 void receiveLog();

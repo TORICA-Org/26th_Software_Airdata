@@ -12,16 +12,24 @@
 
 TORICA_SD sd;  //引数なしでインスタンス化
 
-char SD_BUF[2048];  //SD書き込み用バッファ
+char SD_BUF[256];  //SD書き込み用バッファ
 
-bool SD_is_active = false;  //SDが正常に動作しているかどうかを示すフラグ
+bool SD_is_active = false;
+
 //SD初期化コード
 bool initSD() {
+#ifdef ARDUINO_ARCH_RP2040  //RP2040およびRP2350のチェック用
+  SPI.setCS(SD_CS);
+  SPI.setSCK(SD_SCK);
+  SPI.setTX(SD_MOSI);
+  SPI.setRX(SD_MISO);
+#endif
+
   SPI.begin();
   if (!sd.begin(SD_CS)) {
-    SD_is_active = false;
     return false;
   };
+
   SD_is_active = true;
   return true;
 }
@@ -37,8 +45,8 @@ void flashHeader() {
         case 0:  // 12個
           {
             str[0] = "time_ms,takeoff,urm_is_reliable,data_air_gps_hour,";                                                         // 4個
-            str[1] = "data_air_gps_minute,data_air_gps_second,data_air_gps_centisecond,data_air_gps_latitude_deg,";             // 4個
-            str[2] = "data_air_gps_longitude_deg,data_air_gps_altitude_m,data_air_gps_groundspeed_ms,data_air_gps_heading_deg,";  // 4個
+            str[1] = "data_air_gps_minute, data_air_gps_second, data_air_gps_centisecond, data_air_gps_latitude_deg,";             // 4個
+            str[2] = "ata_air_gps_longitude_deg, data_air_gps_altitude_m, data_air_gps_groundspeed_ms,data_air_gps_heading_deg,";  // 4個
             break;
           }
         case 1:
@@ -52,14 +60,14 @@ void flashHeader() {
           {
             str[0] = "fslg_is_alive,data_fslg_bno_qw,data_fslg_bno_qx,data_fslg_bno_qy,data_fslg_bno_qz,";                   // 5個
             str[1] = "data_fslg_bno_roll,data_fslg_bno_pitch,data_fslg_bno_yaw,data_fslg_lsm_roll,data_fslg_lsm_pitch,";     // 5個
-            str[2] = "data_fslg_lsm_yaw,data_fslg_bmp_pressure_hPa,data_fslg_bmp_temperature_deg,data_fslg_bmp_altitude_m,";  // 4個
+            str[2] = "data_fslg_lsm_yaw,data_fslg_bmp_pressure_hPa,data_fslg_bmp_temperature_deg,data_fslg_bmp_altitude_m";  // 4個
             break;
           }
         case 3:  // 16個
           {
             str[0] = "data_fslg_bno_accx_mss,data_fslg_bno_accy_mss,data_fslg_bno_accz_mss,data_fslg_lsm_accx_mss,data_fslg_lsm_accy_mss, data_fslg_lsm_accz_mss,";    // 6個
             str[1] = "data_fslg_bno_cal_system,data_fslg_bno_cal_gyro,data_fslg_bno_cal_accel,data_fslg_bno_cal_mag,under_is_alive,";                                  // 5個
-            str[2] = "data_under_bmp_pressure_hPa,data_under_bmp_temperature_deg,data_under_bmp_altitude_m,data_under_urm_altitude_m,data_under_tsd20_altitude_m\n";  // 5個
+            str[2] = "data_under_bmp_pressure_hPa,data_under_bmp_temperature_deg,data_under_bmp_altitude_m,data_under_urm_altitude_m, data_under_tsd20_altitude_m\n";  // 5個
             break;
           }
         default:
