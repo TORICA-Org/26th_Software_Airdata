@@ -6,15 +6,14 @@
 
 ---------------------------------------------------------*/
 
-#pragma once // インクルードガード（複数回読み込まれないようにする）
+#pragma once
 
 #include <Arduino.h>
-#include <Wire.h>
-#include <AS5600.h>
 
-bool AS5600_init(void);
+struct AS5600Data {
+    float AoA_deg;
+    float AoS_deg;
+};
 
-void read_AS5600(void);
-
-// float AS5600_getAoS(void);
-// float AS5600_getAoA(void);
+bool AS5600_init();
+AS5600Data read_AS5600();

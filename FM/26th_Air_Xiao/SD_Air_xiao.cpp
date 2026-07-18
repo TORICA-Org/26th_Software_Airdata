@@ -4,18 +4,20 @@
 
 ------------------------*/
 
+#define private public // これによりTORICA_SD内のprivate変数内に無理やりアクセス
 #include "SD_Air_xiao.h"
+#undef private
 
-//ピン配置定義ファイルを読み込む
+// ピン配置定義ファイルを読み込む
 #include "Air_xiao_config.h"
 #include "parameters.h"
 
-TORICA_SD sd;  //引数なしでインスタンス化
+TORICA_SD sd;  // 引数なしでインスタンス化
 
-char SD_BUF[2048];  //SD書き込み用バッファ
+char SD_BUF[2048];  // SD書き込み用バッファ
 
-bool SD_is_active = false;  //SDが正常に動作しているかどうかを示すフラグ
-//SD初期化コード
+bool SD_is_active = false;  // SDが正常に動作しているかどうかを示すフラグ
+// SD初期化コード
 bool initSD() {
   SPI.begin();
   if (!sd.begin(SD_CS)) {
@@ -147,8 +149,13 @@ void addDataToSDBuf(const LogData& data, int flash_mode) {
 
 // バッファにたまったデータをSDに書き込むだけの関数
 void writeSD() {
-  if (SD_is_active) {
-    sd.flash();
+  if (!SD_is_active) return;
+  digitalWrite(LED_BUILTIN, LOW);  // 内蔵LED ON
+  sd.flash();
+
+  // SDが書き込めるなら内蔵LEDを光らせる
+  if (check_SDisActive() == true){
+    digitalWrite(LED_BUILTIN, HIGH); // 内蔵LED OFF
   }
 }
 
@@ -162,7 +169,7 @@ void writeBufToSD(char* buffer) {
 
 
 
-//とりあえず20Hz書き込みで様子見
+// とりあえず20Hz書き込みで様子見
 void flashSD(int flash_mode) {
   if (SD_is_active) {
     memset(SD_BUF, 0, sizeof(SD_BUF));  //SD_BUFを0で初期化
@@ -223,4 +230,14 @@ void flashSD(int flash_mode) {
         }
     }
   }
+}
+
+
+bool check_SDisActive(){
+  return sd.SDisActive;
+}
+
+// SDのファイル名を無理やり取得
+const char* get_SDfileName(){
+  return sd.fileName; // 無理やりアクセスしてるので余計なことをせずにさっさとreturnする
 }

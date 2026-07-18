@@ -3,7 +3,6 @@
 // Core1: UART受信とSD書き込み
 /*------------------------*/
 
-
 #define DEBUG_MODE
 
 #include <Arduino.h>
@@ -73,14 +72,15 @@ void setup() {
   initSerialWeb(); // SerialWebの初期化
   Serial.println("SerialWeb init done.");
 
+  pinMode(LED_BUILTIN, OUTPUT);
   // 内蔵LEDを点滅
-  delay(100);
-  for (int i = 0; i < 2; i++) {
-    digitalWrite(LED_BUILTIN, HIGH);  // 内蔵LED ON
-    delay(1000);
-    digitalWrite(LED_BUILTIN, LOW);  // 内蔵LED OFF
-    delay(1000);
-  }
+  // delay(100);
+  // for (int i = 0; i < 2; i++) {
+  //   digitalWrite(LED_BUILTIN, HIGH);  // 内蔵LED ON
+  //   delay(1000);
+  //   digitalWrite(LED_BUILTIN, LOW);  // 内蔵LED OFF
+  //   delay(1000);
+  // }
 
 
   // xTaskCreatePinnedToCore(Core0_Task, "Core0_Task", 16384, NULL, 3, &thp[0], 0);
@@ -113,17 +113,52 @@ void setup() {
 }
 
 
-
 // FreeRTOSにタスクを管理してもらうので，loop()内は空
 void loop() {
   vTaskDelay(pdMS_TO_TICKS(1000));
 }
 
 
+
+// SerialWebが落ちたときに復活させる用
+#include <WiFi.h>
+#include <esp_wifi.h>
+static int wifi_recovery_count = 0;
+void checkAndRecoverWiFiAP() {
+  // APモードの自分のIPアドレスを取得
+  IPAddress apIP = WiFi.softAPIP();
+
+  // もしIPアドレスが0.0.0.0になっていたらAPが死んでいると判定
+  if (apIP == IPAddress(0, 0, 0, 0)) {
+    Serial.println("[WARNING] Wi-Fi AP is DOWN! Trying to recover...");
+
+    // 一旦Wi-Fiを完全にリセット
+    WiFi.softAPdisconnect(true);
+    vTaskDelay(pdMS_TO_TICKS(100));
+
+    // 明示的にAPモードで再起動
+    WiFi.mode(WIFI_AP);
+    // 引数: (SSID, PASSWORD, チャンネル, 隠蔽フラグ, 最大接続数1)
+    WiFi.softAP(SSID, PASSWORD, 1, 0, 1); 
+    
+    // 省電力設定OFF
+    WiFi.setSleep(false);
+    esp_wifi_set_ps(WIFI_PS_NONE);
+
+    // Serial.print("[RECOVER] Wi-Fi AP restarted. New IP: ");
+    // Serial.println(WiFi.softAPIP());
+
+    wifi_recovery_count++;
+    
+    Serial.println(wifi_recovery_count);
+  }
+}
+
+
 // Core0で行う処理
 void Core0_Task(void *args) {
   TickType_t xLastWakeTime = xTaskGetTickCount();     // タスクの開始時間を取得
-  const TickType_t xFrequency = pdMS_TO_TICKS(1000);  // 1000ms周期
+  const TickType_t xFrequency = pdMS_TO_TICKS(100);  // 100ms周期
 
   // while (1) {  // ループさせたいので無限ループにする．FreeRTOSの仕様
 
@@ -141,9 +176,16 @@ void Core0_Task(void *args) {
   while (1){
     vTaskDelayUntil(&xLastWakeTime, xFrequency);
     processCore0_ParseAndWeb();
+    checkAndRecoverWiFiAP();
 
+    static int debug_count = 0;
+    debug_count++;
+    if (debug_count > 10){
     // Serial.println("Core0 running");
-    printTaskStats();
+    // printTaskStats();
+    // Serial.printf("[DEBUG] MinFreeHeap: %lu B | Core0Stack: %u B | Core1Stack: %u B\n", ESP.getMinFreeHeap(), /* ヒープの過去最低残高 */ uxTaskGetStackHighWaterMark(thp[0]),               /* Core0タスクのスタック残り */ uxTaskGetStackHighWaterMark(thp[1])                /* Core1タスクのスタック残り */);
+    debug_count = 0;
+    }
   }
 }
 
@@ -163,12 +205,10 @@ void Core1_Task(void *args) {
     // SerialWebからの"RESET"信号受け取り
     static uint8_t reset_signal_count = 0;
     reset_signal_count++;
-    if (reset_signal_count > 20){
+    if (reset_signal_count > 15){
       SerialWeb_detectRESET();
       reset_signal_count = 0;
     }
-
     // Serial.println("Core1 running");
-    
   }
 }

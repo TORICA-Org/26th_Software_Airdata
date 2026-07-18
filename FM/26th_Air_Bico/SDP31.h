@@ -9,16 +9,6 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include <SensirionI2CSdp.h>
 
-
-
-extern SensirionI2CSdp sdp;
-
-bool SDP31_init(void);
-
-void read_SDP(void);
-
-//float SDP31_getdifferentialPressure_Pa(void);
-
-
+bool SDP31_init(TwoWire* wire, uint8_t address = 0x21);
+float read_SDP();
