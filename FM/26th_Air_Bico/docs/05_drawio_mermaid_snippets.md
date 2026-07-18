@@ -169,8 +169,8 @@ flowchart LR
     C0_Push ==> FIFO
 
     FIFO ==> C1_Check
-    C1_Check -->|Yes| C1_Pop --> C1_Lock --> C1_Copy --> C1_Unlock --> C1_Calc
-    C1_Check -->|No (シグナルなし)| C1_Calc
+    C1_Check -->|"Yes"| C1_Pop --> C1_Lock --> C1_Copy --> C1_Unlock --> C1_Calc
+    C1_Check -->|"No (シグナルなし)"| C1_Calc
     C1_Copy <== Shared_Struct
     C1_Lock -.-> Mutex
     C1_Unlock -.-> Mutex

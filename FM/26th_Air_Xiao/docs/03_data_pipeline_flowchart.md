@@ -44,7 +44,7 @@ graph TD
     Push_SD_Queue ==> Write_SD_Func
     Write_SD_Func --> Flash_SD_Func
 
-    Copy_SD -->|25回に1回<br>(4Hzサンプリング)| Pop_UART_Queue
+    Copy_SD -->|"25回に1回<br>(4Hzサンプリング)"| Pop_UART_Queue
     Pop_UART_Queue --> Parse_Buf
     Parse_Buf --> Check_Num
     Check_Num -->|Yes| Extract_Log
