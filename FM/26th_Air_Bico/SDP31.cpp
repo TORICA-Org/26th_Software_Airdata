@@ -12,13 +12,13 @@
 #include "SDP31.h"
 #include "parameters.h"
 
-SensirionI2CSdp sdp;
+static SensirionI2CSdp sdp;
 
-bool SDP31_init(void) {
+bool SDP31_init(TwoWire* wire, uint8_t address) {
     uint16_t error;
     char errorMessage[256];
 
-    sdp.begin(Wire, SDP3X_I2C_ADDRESS_2);
+    sdp.begin(*wire, address);
 
     uint32_t productNumber;
     uint8_t serialNumber[8];
@@ -33,9 +33,8 @@ bool SDP31_init(void) {
         #ifdef DEBUG_MODE
         Serial.print("Error trying to execute readProductIdentifier(): ");
         Serial.println(errorMessage);
-        #endif DEBUG_MODE
+        #endif
 
-        // センサーが見つからなかった場合，ここで処理を打ち切り
         return false;
     } else {
       #ifdef DEBUG_MODE
@@ -48,29 +47,30 @@ bool SDP31_init(void) {
             Serial.print(serialNumber[i], HEX);
         }
         Serial.println();
-      #endif DEBUG_MODE
+      #endif
     }
 
     error = sdp.startContinuousMeasurementWithDiffPressureTCompAndAveraging();
 
     if (error) {
+        #ifdef DEBUG_MODE
         Serial.print(
             "Error trying to execute "
             "startContinuousMeasurementWithDiffPressureTCompAndAveraging(): ");
         errorToString(error, errorMessage, 256);
         Serial.println(errorMessage);
+        #endif
         return false;
     }
     return true;
 }
 
-void read_SDP(void){
-  uint16_t error;
+float read_SDP(void){
+    uint16_t error;
     char errorMessage[256];
 
-    // Read Measurement
-    float differentialPressure;
-    float temperature;
+    float differentialPressure = 0.0f;
+    float temperature = 0.0f;
 
     error = sdp.readMeasurement(differentialPressure, temperature);
 
@@ -79,39 +79,8 @@ void read_SDP(void){
         Serial.print("Error trying to execute readMeasurement(): ");
         errorToString(error, errorMessage, 256);
         Serial.println(errorMessage);
-      #endif DEBUG_MODE
-       data_air_sdp_differentialPressure_Pa = 0.0; //もし読み取れなかったら
-    } else {
-      data_air_sdp_differentialPressure_Pa = differentialPressure;
+      #endif
+        return 0.0f;
     }
+    return differentialPressure;
 }
-
-// float SDP31_getdifferentialPressure_Pa(void) {
-//     uint16_t error;
-//     char errorMessage[256];
-
-//     // Read Measurement
-//     float differentialPressure;
-//     float temperature;
-
-//     error = sdp.readMeasurement(differentialPressure, temperature);
-
-//     if (error) {
-//       #ifdef DEBUG_MODE
-//         Serial.print("Error trying to execute readMeasurement(): ");
-//         errorToString(error, errorMessage, 256);
-//         Serial.println(errorMessage);
-//       #endif DEBUG_MODE
-//       return 0.0;
-//     } else {
-//       return differentialPressure;
-//       /*----------------
-//         Serial.print("DifferentialPressure[Pa]:");
-//         Serial.print(differentialPressure);
-//         Serial.print("\t");
-//         Serial.print("Temperature[°C]:");
-//         Serial.print(temperature);
-//         Serial.println();
-//       -----------------*/
-//     }
-// }

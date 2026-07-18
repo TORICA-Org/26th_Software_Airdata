@@ -6,20 +6,14 @@
 
 ---------------------------------------------------------*/
 
-#pragma once // インクルードガード（複数回読み込まれないようにする）
-
 #include "AS5600.h"
-#include "AS5600.h"
-#include "parameters.h"
+#include <Wire.h>
+#include <AS5600.h>
 
+static AS5600 AoA(&Wire);  // I2C0を使用
+static AS5600 AoS(&Wire1); // I2C1を使用
 
-//  Uncomment the line according to your sensor type
-//AS5600L as5600;   //  use default Wire
-AS5600 AoA(&Wire); //I2C0を使用
-AS5600 AoS(&Wire1); //I2C1を使用
-
-
-bool AS5600_init(void){
+bool AS5600_init() {
 
   #ifdef DEBUG_MODE
   Serial.println();
@@ -27,68 +21,40 @@ bool AS5600_init(void){
   Serial.print("AS5600_LIB_VERSION: ");
   Serial.println(AS5600_LIB_VERSION);
   Serial.println();
-  #endif DEBUG_MODE
+  #endif
 
-  //AoA.begin(4);  //  set direction pin.
-  //AoS.begin();
-
-
-  //これどっちにするべきだろう・・・？
-  AoA.setDirection(AS5600_CLOCK_WISE);  //  default, just be explicit.
+  AoA.setDirection(AS5600_CLOCK_WISE);
   AoS.setDirection(AS5600_CLOCK_WISE);
   
   #ifdef DEBUG_MODE
-  //AoS
   if(AoS.isConnected() == 0){
     Serial.println("AoS error");
   } else if(AoS.isConnected() == 1){
     Serial.println("AoS OK!");
   }
 
-  //AoA
   if(AoA.isConnected() == 0){
     Serial.println("AoA error");
   }
-  else if(AoA.isConnected() ==1){
+  else if(AoA.isConnected() == 1){
     Serial.println("AoA OK!");
   }
-  #endif DEBUG_MODE
+  #endif
 
-  if(AoA.isConnected() && AoS.isConnected()){
-    return true; //両方とも接続成功の場合
-  } else {
-    return false; //どちらか又は両方が接続失敗の場合
-  }
-
+  return (AoA.isConnected() && AoS.isConnected());
 }
 
+AS5600Data read_AS5600() {
+  AS5600Data data = {0.0f, 0.0f};
 
-void read_AS5600(void){
-  // .readAngle()で0～4096(12bitなので2^12)の値が返ってくる
   int raw_AoA = AoA.readAngle();
   int raw_AoS = AoS.readAngle();
 
-  // 180°(2048)を超えていたら，4096を引いてマイナスにする
   if (raw_AoA > 2048) raw_AoA -= 4096;
   if (raw_AoS > 2048) raw_AoS -= 4096;
 
-  data_air_AoA_angle_deg = (raw_AoA * 360.0) / 4096.0;
-  data_air_AoS_angle_deg = (raw_AoS * 360.0) / 4096.0;
+  data.AoA_deg = (raw_AoA * 360.0f) / 4096.0f;
+  data.AoS_deg = (raw_AoS * 360.0f) / 4096.0f;
+
+  return data;
 }
-
-
-/*------
-float AS5600_getAoS(void)
-{
-  return AoS.readAngle();
-}
-
-float AS5600_getAoA(void)
-{
-  return AoA.readAngle();
-}
-
-----------*/
-
-
-//  -- END OF FILE --

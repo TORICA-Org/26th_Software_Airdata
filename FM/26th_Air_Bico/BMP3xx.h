@@ -11,19 +11,11 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include <Adafruit_BMP3XX.h>
 
+struct BmpData {
+    float pressure_hPa;
+    float temperature_deg;
+};
 
-//センサー初期化用
-bool BMP3XX_init(void);
-
-void read_bmp_air(void);
-
-// void read_bmp_under(void);
-
-// void read_bmp_fslg(void);
-
-
-//float BMP3XX_getTemperature_deg(void);
-
-//float BMP3XX_getPressure_hPa(void);
+bool BMP3XX_init(TwoWire* wire, uint8_t address);
+BmpData read_bmp();

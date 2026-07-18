@@ -1,9 +1,14 @@
 #include <Arduino.h>
 #include "UARTHelper_Bico.h"
 #include "Bico_config.h"
+#include "hardware/dma.h"
+#include "hardware/uart.h"
+
+static int uart_dma_chan = -1;
+static dma_channel_config dma_cfg;
+static char dma_trans_buff[1024];
 
 #define Serial_ICS Serial1    //ICSのUART // `Serial_ICS`を`Serial1`としてマクロを登録
-// #define Serial_Under Serial2  //UnderのUART // `Serial_Under`を`Serial2`としてマクロを登録
 #define Serial_ESP Serial2    // エアデータとESP32との通信
 
 //PIO UARTの宣言
@@ -19,7 +24,7 @@ SerialPIO Serial_Under(Serial_Under_TX, Serial_Under_RX, 1024);
 TORICA_UART ESP_UART(&Serial_ESP);
 TORICA_UART Under_UART(&Serial_Under);
 TORICA_UART Fslg_UART(&Serial_fslg);
-char trans_buff[1024];  // 送信する文字列を保存するためのバッファ
+
 
 // TORICA_ICS
 #include <TORICA_ICS.h>
@@ -54,7 +59,23 @@ void initUART() {
 }
 
 
+void initUART_DMA() {
+#ifdef USE_DMA
+  uart_dma_chan = dma_claim_unused_channel(true);
+  dma_cfg = dma_channel_get_default_config(uart_dma_chan);
+
+  channel_config_set_transfer_data_size(&dma_cfg, DMA_SIZE_8); // 1バイト転送
+  channel_config_set_read_increment(&dma_cfg, true);          // 読み出し側は進める
+  channel_config_set_write_increment(&dma_cfg, false);        // 書き込み側は固定
+  
+  // DREQ_UART1_TX (Serial_ESP / Serial2 は RP2040 の uart1 実体)
+  channel_config_set_dreq(&dma_cfg, DREQ_UART1_TX);
+#endif
+}
+
+
 void transmitHeader() {
+  char trans_buff[1024];
   // この関数は`setup()`内なのでブロッキング関数（処理の流れが止まる関数）であっても構わない
   const char *str[3];
 
@@ -98,7 +119,7 @@ void transmitHeader() {
     sprintf(trans_buff, "%s%s%s", str[0], str[1], str[2]);
 
     //バッファをクリアしてから新しいデータを書き込み
-    // ESP.flush();
+    // Serial_ESP.flush();
     Serial_Under.flush();
     // Serial_ESP.print(trans_buff);
     Serial_Under.print(trans_buff);
@@ -107,7 +128,7 @@ void transmitHeader() {
   }
 }
 
-/*------
+/*------------------------------------------------------------
 
 各trans_modeにおいて送信するデータ量を均等にするためにこの順番にしている． 
 ASCIIコードに変換すると，
@@ -117,10 +138,11 @@ ASCIIコードに変換すると，
 小：時刻・ICS角度(int) -> 3~5byte
 極小：フラグ・キャリブレーション値 -> 2byte 
 
-------*/
+-----------------------------------------------------------*/
 
 
 void transmitLog(int trans_mode) {  // 関数分けるのは面倒なので引数（0~3）でモード変更
+  char trans_buff[1024];
   switch (trans_mode) { // 計53個
     case 0: // 計13個
       {
@@ -169,11 +191,41 @@ void transmitLog(int trans_mode) {  // 関数分けるのは面倒なので引�
       }
   }
 
-  //バッファをクリアしてから新しいデータを書き込み
+#ifdef USE_DMA
+  // 前回のDMA転送が終わっていない場合はスキップ（ノンブロッキング処理にするため）
+  if (uart_dma_chan != -1) {
+    if (dma_channel_is_busy(uart_dma_chan)) {
+      return;
+    }
+  }
+
+  // DMA送信バッファにコピー
+  size_t len = strlen(trans_buff);
+  if (len >= sizeof(dma_trans_buff)) {
+    len = sizeof(dma_trans_buff) - 1;
+  }
+  memcpy(dma_trans_buff, trans_buff, len);
+  dma_trans_buff[len] = '\0';
+
+  // DMAチャネルを設定して即時送信開始（非同期）
+  if (uart_dma_chan != -1) {
+    dma_channel_configure(
+        uart_dma_chan,
+        &dma_cfg,
+        &uart1_hw->dr,
+        dma_trans_buff,
+        len,
+        true
+    );
+  }
+#else
+  // 通常の同期送信（DMA未使用時）
   Serial_ESP.flush();
-  Serial_Under.flush();
-  // Serial_fslg.flush();
   Serial_ESP.print(trans_buff);
+#endif
+
+  // ソフトウェアシリアル（Under側）は通常どおり同期送信
+  Serial_Under.flush();
   Serial_Under.print(trans_buff);
   // Serial_fslg.print(trans_buff);
 }
@@ -181,6 +233,7 @@ void transmitLog(int trans_mode) {  // 関数分けるのは面倒なので引�
 
 // 胴体桁向け送信関数
 void transmitLog_for_fslg(int trans_mode) {  // 関数分けるのは面倒なので引数（0~3）でモード変更
+  char trans_buff[512];
   switch (trans_mode) { // 計29個
     case 0: // 計13個
       {
@@ -223,11 +276,11 @@ void transmitLog_for_fslg(int trans_mode) {  // 関数分けるのは面倒な�
 }
 
 
-void receiveLog() {
+void receiveUnderLog() {
   // 機体下受信
   static unsigned long int last_under_time_ms = 0;
   int readnum_under = Under_UART.readUART();
-  const int under_data_num = 6;  // 正常な場合のデータ受信数
+  const int under_data_num = 5;  // 正常な場合のデータ受信数
 
   if (readnum_under == under_data_num) {
     last_under_time_ms = millis();
@@ -237,7 +290,6 @@ void receiveLog() {
     data_under_bmp_altitude_m = Under_UART.UART_data[2];
     data_under_urm_altitude_m = Under_UART.UART_data[3];
     data_under_tsd20_altitude_m = Under_UART.UART_data[4];
-    takeoff = Under_UART.UART_data[5];
   }
 
   // 最終受信時間から1秒以上経過している場合は機体下が死んでいるとみなす
@@ -246,8 +298,10 @@ void receiveLog() {
   } else {
     under_is_alive = true;
   }
+}
 
 
+void receiveFslgLog() {
   // 胴体桁受信
   static unsigned long int last_fslg_time_ms = 0;
   int readnum_fslg = Fslg_UART.readUART();
@@ -282,7 +336,6 @@ void receiveLog() {
     data_fslg_lsm_roll = Fslg_UART.UART_data[20];
     data_fslg_lsm_pitch = Fslg_UART.UART_data[21];
     data_fslg_lsm_yaw = Fslg_UART.UART_data[22];
-
   }
 
   // 最終受信時間から1秒以上経過している場合は胴体桁が死んでいるとみなす
@@ -291,8 +344,10 @@ void receiveLog() {
   } else {
     fslg_is_alive = true;
   }
+}
 
 
+void receiveIcsAngle() {
   // ICS読み取り
   int new_ics_angle = 0;
   new_ics_angle = ICS.read_Angle();
@@ -301,24 +356,29 @@ void receiveLog() {
     data_ics_angle = new_ics_angle;
     digitalWrite(LED_ICS, HIGH);
   }
-  
+}
 
+
+void handleEspSignal() {
   // エアデータ ESP32 XiaoからRESETやCALIBなどのシグナル受信
   if (ESP_UART.listenUART()){
     // 文字列のどこかに"RESET"が含まれている場合
     if (strstr(ESP_UART.buff, "RESET") != NULL){
-      Serial_Under.print("\nRESET\n"); // UnderはUARTを受信するとそのままSD書き込み用バッファに送り込まれる→"\nRESET\n"がそのままSDに書き込まれる．
-      // CSVのイメージ
-      /* 
-      1.23,4.56,
-      RESET
-      7.89,..... 
-      */
+      Serial_Under.print("\nRESET\n"); // UnderはUARTを受信するとそのままSD書き込み用バッファに送り込まれる
       Serial_fslg.print("RESET"); // 胴体桁基板は受信すると文字列解析にかけられる．
 
-    } else if (strstr(ESP_UART.buff, "CALIB") != NULL) {
-      // 文字列"CALIB"を受け取った場合
+      // スピーカー強制ON
+    } else if (strstr(ESP_UART.buff, "SPK_EN") != NULL) {
+      Serial_fslg.print("SPK_EN");
 
+      // スピーカー強制OFF
+    } else if (strstr(ESP_UART.buff, "SPK_DIS") != NULL){
+      Serial_fslg.print("SPK_DIS");
+
+      // Takeoffフラグを反転させる
+    } else if (strstr(ESP_UART.buff, "CHG_TO") != NULL) {
+      Serial_fslg.print("CHG_TO");  // 胴体桁基板に送信（スピーカーで使うため）
+      takeoff = !takeoff; // takeoffフラグを反転
     }
   }
 }

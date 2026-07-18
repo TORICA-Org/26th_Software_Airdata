@@ -1,7 +1,5 @@
 #pragma once
 
 #include <Arduino.h>
-#include "parameters.h"
-#include <TORICA_MoveAve.h>
-
-void calculate_airspeed();
+void calculate_airspeed(float diff_press_Pa, float temp_deg, float press_hPa);
+float correct_airspeed(float raw_airspeed);

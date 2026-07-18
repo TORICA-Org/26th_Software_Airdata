@@ -11,6 +11,8 @@
 
 #include "parameters.h"
 
+extern bool SD_is_active;
+
 bool initSD();
 
 void flashHeader();
@@ -22,3 +24,7 @@ void addDataToSDBuf(const LogData& data, int flash_mode);
 void writeSD();
 
 void writeBufToSD(char* buffer);
+
+bool check_SDisActive();
+
+const char* get_SDfileName();
