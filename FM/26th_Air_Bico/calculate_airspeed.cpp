@@ -5,12 +5,13 @@
 static TORICA_MoveAve<5> filtered_airspeed(0); // 直近5回で取得した対気速度の平均
 
 // 対気速度補正式 (y = ax^2 + bx + c) の係数定義
-const float CALIB_A = 0.0f; // x^2 の係数
-const float CALIB_B = 0.0f; // x の係数
-const float CALIB_C = 0.0f; // 定数項
+float CALIB_A = 0.0f; // x^2 の係数
+float CALIB_B = 0.0f; // x の係数
+float CALIB_C = 0.0f; // 定数項
 
 // 対気速度の二次式補正関数
 float correct_airspeed(float raw_airspeed) {
+    // 全部0.0だったらそのままの値を返す
     if (CALIB_A == 0.0f && CALIB_B == 0.0f && CALIB_C == 0.0f){
         return raw_airspeed;
     }
@@ -32,12 +33,10 @@ void calculate_airspeed(float diff_press_Pa, float temp_deg, float press_hPa) {
         measured_airspeed_ms = sqrt(fabs(2.0f * diff_press_Pa * (T / P) * 287.026f));
     }
 
-    // 二次式による対気速度の補正計算
-    float calibrated_airspeed_ms = correct_airspeed(measured_airspeed_ms);
+    // data_air_sdp_airspeed_msは生の値を格納
+    data_air_sdp_airspeed_ms = measured_airspeed_ms;
 
-    data_air_sdp_airspeed_ms = calibrated_airspeed_ms;
-
-    // 移動平均フィルタへ追加してグローバルへ代入
-    filtered_airspeed.add(data_air_sdp_airspeed_ms);
+    // filtered_airspeed_msは補正＆移動平均適用
+    filtered_airspeed.add( correct_airspeed(data_air_sdp_airspeed_ms) );
     filtered_airspeed_ms = filtered_airspeed.get();
 }

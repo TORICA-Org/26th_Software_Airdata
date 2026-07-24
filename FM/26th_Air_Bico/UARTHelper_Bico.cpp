@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "UARTHelper_Bico.h"
 #include "Bico_config.h"
+#include "calculate_airspeed.h"
 #include "hardware/dma.h"
 #include "hardware/uart.h"
 
@@ -379,6 +380,21 @@ void handleEspSignal() {
     } else if (strstr(ESP_UART.buff, "CHG_TO") != NULL) {
       Serial_fslg.print("CHG_TO");  // 胴体桁基板に送信（スピーカーで使うため）
       takeoff = !takeoff; // takeoffフラグを反転
+      
+      // IMUゼロ点合わせ用
+    } else if (strstr(ESP_UART.buff, "CALIB") != NULL) {
+      Serial_fslg.print("CALIB"); // 胴体桁基板にゼロ点合わせの合図を送信
+      Serial_Under.print("\nCALIB\n"); // 機体下電装にも送る
+
+      // ピトー管キャリブレーション用パラメータ設定 (例: PITOT,1.5,1.0,1.1)
+    } else if (strstr(ESP_UART.buff, "PITOT") != NULL) {
+      char *p = strstr(ESP_UART.buff, "PITOT");
+      float a = 0.0f, b = 0.0f, c = 0.0f;
+      if (sscanf(p, "PITOT,%f,%f,%f", &a, &b, &c) == 3) {
+        CALIB_A = a;
+        CALIB_B = b;
+        CALIB_C = c;
+      }
     }
   }
 }
