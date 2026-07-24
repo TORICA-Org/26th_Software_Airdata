@@ -54,6 +54,8 @@ static char value_takeoff[8];
 // sdp
 static constexpr char label_airspeed[] = "airspd";
 static char value_airspeed[32];
+static constexpr char label_filtered_airspeed[] = "filtered_airspd";
+static char value_filtered_airspeed[32];
 
 // AoA,AoS
 static constexpr char label_AoA_AoS[] = "AoA, AoS";
@@ -239,6 +241,9 @@ void sendSerialWeb(){
             // airspeed
             snprintf(value_airspeed, sizeof(value_airspeed), "%.2f", data_air_sdp_airspeed_ms);
             SerialWeb.send(label_airspeed, value_airspeed);
+
+            snprintf(value_filtered_airspeed, sizeof(value_filtered_airspeed), "%.2f", filtered_airspeed_ms);
+            SerialWeb.send(label_filtered_airspeed, value_filtered_airspeed);
             break;
 
         case 8:
@@ -274,7 +279,7 @@ void sendSerialWeb(){
 void SerialWeb_detectRESET(){
   if (SerialWeb.available() >= 5) { // 5文字以上の受信を判定
 
-    char receiveBuf[16];
+    char receiveBuf[64];
     int len = SerialWeb.readBytes(receiveBuf, sizeof(receiveBuf) - 1);
     receiveBuf[len] = '\0'; // 文末処理
 
@@ -303,15 +308,25 @@ void SerialWeb_detectRESET(){
       Serial1.println("SPK_DIS");
       // SPK_ENABLE = false
 
-    } else if (strcasecmp(receiveBuf, "TAKEOFF") ) {
+    } else if (strcasecmp(receiveBuf, "TAKEOFF") == 0) {
       SerialWeb.println("=========CHANGE TAKEOFF FLAG=========");
       Serial1.println("CHG_TO"); // change takeoff flag
       takeoff = !takeoff; // takeoffフラグを反転
 
-    } else if (strcasecmp(receiveBuf, "CALIB") ){
-      SerialWeb.println("=========IMU Calibration=========");
-      Serial1.println("CALIB"); // IMU Calibration (ゼロ点合わせ)
-      
+    } else if (strcasecmp(receiveBuf, "CALIB") == 0) {
+      SerialWeb.println("=============IMU Calibration=============");
+      Serial1.println("CALIB"); // IMU Calibration (ゼロ点合わせ) 
+
+    // ピトー管キャリブレーション用 (例: 校正式が1.5x^2+1.0x+1.1 → PITOT,1.5,1.0,1.1)
+    } else if (strncasecmp(receiveBuf, "PITOT", 5) == 0) {
+      SerialWeb.println("============PITOT TUBE CALIBRATION================");
+      float a = 0.0f, b = 0.0f, c = 0.0f;
+      if (sscanf(receiveBuf + 6, "%f,%f,%f", &a, &b, &c) == 3) {
+        Serial1.printf("PITOT,%.4f,%.4f,%.4f\n", a, b, c);
+        SerialWeb.printf("PITOT params updated: a=%.4f, b=%.4f, c=%.4f\n", a, b, c);
+      } else {
+        SerialWeb.println("=============== Error: Invalid PITOT format. Expected PITOT,a,b,c ==================");
+      }
     }
   }
 }
