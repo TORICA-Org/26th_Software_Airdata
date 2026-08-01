@@ -22,7 +22,7 @@ void setup() {
   // delay(1000);
   // Serial_GPS.println("$PSTMSETPAR,1102,0x5*64"); // baudrateを9600bpsに変更
   
-  delay(1000);
+  // delay(1000);
 
   // Serial_GPS.println("$PSTMSETPAR,1303,0.20*06"); // 周期5Hz
   // Serial_GPS.println("$PSTMSETPAR,1303,0.10*05"); // 周期10Hz
@@ -48,10 +48,10 @@ void setup() {
 }
 
 void loop() {
-  // digitalWrite(8, HIGH);
-  // digitalWrite(23, HIGH);
+  // digitalWrite(8, HIGH);  // digitalWrite(23, HIGH);
 
   if (Serial_GPS.available() > 0) {
+
     gps.encode(Serial_GPS.read() );
     Serial.println(gps.location.lat());
     Serial.println(gps.time.second());
